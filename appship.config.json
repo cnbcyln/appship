@@ -1,14 +1,14 @@
 {
   "LANGUAGE": "tr",
   "PROJECT_NAME": "WorkPark",
-  "GOOGLE_PLAY_SERVICE_ACCOUNT_KEY_PATH": "",
-  "GOOGLE_PLAY_PACKAGE_NAME": "",
-  "APPLE_API_KEY_PATH": "",
-  "APPLE_API_KEY_ID": "",
-  "APPLE_API_ISSUER_ID": "",
-  "APPLE_TEAM_ID": "",
-  "APPLE_BUNDLE_ID": "",
-  "RELEASE_NOTES_TR": "",
-  "RELEASE_NOTES_EN": "",
-  "BUILD_OUTPUT_DIR": ""
+  "GOOGLE_PLAY_SERVICE_ACCOUNT_KEY_PATH": "/Users/canbahadirceylan/Desktop/CBCTech/appship/package-lock.json",
+  "GOOGLE_PLAY_PACKAGE_NAME": "asdasd",
+  "APPLE_API_KEY_PATH": "/tmp/AuthKey.p8",
+  "APPLE_API_KEY_ID": "ABC123",
+  "APPLE_API_ISSUER_ID": "ISSUER",
+  "APPLE_TEAM_ID": "TEAM",
+  "APPLE_BUNDLE_ID": "com.example.app",
+  "RELEASE_NOTES_TR": "Yenilikler",
+  "RELEASE_NOTES_EN": "Updates",
+  "BUILD_OUTPUT_DIR": "/tmp/output"
 }

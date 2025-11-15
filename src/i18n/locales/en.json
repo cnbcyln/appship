@@ -3,7 +3,7 @@
     "unknownError": "unknown error",
     "unknownValue": "unknown",
     "errors": {
-      "excessArguments": "Too many arguments for '{{command}}'. Expected {{expected}} but received {{received}}."
+      "excessArguments": "Too many arguments for '{{{command}}}'. Expected {{{expected}}} but received {{{received}}}."
     }
   },
   "lang": {
@@ -16,10 +16,10 @@
       }
     },
     "success": {
-      "updated": "Language updated to {{language}}."
+      "updated": "Language updated to {{{language}}}."
     },
     "warning": {
-      "noChange": "Language already set to {{language}}."
+      "noChange": "Language already set to {{{language}}}."
     },
     "error": {
       "nonInteractive": "Cannot change language in a non-interactive environment."
@@ -56,7 +56,7 @@
         "updatePrompt": "Would you like to run 'flutter upgrade' to update Flutter?",
         "updateStatusUnknown": "⚠️  Unable to determine Flutter update status. Consider running 'flutter upgrade --verify-only' manually.",
         "updateSkipped": "⏭ Flutter update was skipped by the user.",
-        "verifyFailure": "⚠️  Unable to validate Flutter updates ({{message}}). Manual verification recommended."
+        "verifyFailure": "⚠️  Unable to validate Flutter updates ({{{message}}}). Manual verification recommended."
       },
       "fastlane": {
         "updateAvailable": "⚠️  A new Fastlane version is available.",
@@ -70,13 +70,13 @@
       }
     },
     "error": {
-      "unexpected": "💥 Unexpected error: {{message}}",
-      "unknownArgument": "Unknown argument '{{value}}'. Run 'appship doctor help' for usage.",
+      "unexpected": "💥 Unexpected error: {{{message}}}",
+      "unknownArgument": "Unknown argument '{{{value}}}'. Run 'appship doctor help' for usage.",
       "flutter": {
         "notInstalled": "❌ Flutter is not installed.",
         "updateFailure": "❌ Flutter update failed. Please run 'flutter upgrade' manually.",
         "installFailure": "❌ Flutter installation via Homebrew failed.",
-        "doctorFailure": "❌ Flutter Doctor failed: {{message}}. Please run it manually.",
+        "doctorFailure": "❌ Flutter Doctor failed: {{{message}}}. Please run it manually.",
         "doctorIssues": "❌ Flutter Doctor reported issues. Review the output above and resolve missing requirements."
       },
       "fastlane": {
@@ -89,7 +89,7 @@
     "flutter": {
       "info": {
         "title": "==> Flutter",
-        "version": "📦 Version: {{value}}",
+        "version": "📦 Version: {{{value}}}",
         "updateCheck": "🔄 Checking Flutter updates (flutter upgrade)...",
         "installBrew": "➡️  Installing Flutter via Homebrew (brew install --cask flutter)...",
         "manual": {
@@ -106,9 +106,9 @@
     "fastlane": {
       "info": {
         "title": "==> Fastlane",
-        "version": "📦 Version: fastlane {{value}}",
+        "version": "📦 Version: fastlane {{{value}}}",
         "updatePrompt": "Would you like to update Fastlane now?",
-        "updatePromptCommand": "Would you like to run '{{command}}' to update Fastlane?",
+        "updatePromptCommand": "Would you like to run '{{{command}}}' to update Fastlane?",
         "updateBrew": "🔄 Updating Fastlane via Homebrew (brew upgrade fastlane)...",
         "updateFastlane": "🔄 Checking Fastlane updates (fastlane update_fastlane)...",
         "installBrew": "➡️  Installing Fastlane via Homebrew (brew install fastlane)...",
@@ -124,18 +124,119 @@
     }
   },
   "setup": {
+    "menu": {
+      "prompt": "Choose a setup task",
+      "full": "Full Setup",
+      "projectInfo": "Project Information",
+      "androidSettings": "Android Settings",
+      "iosSettings": "iOS Settings",
+      "releaseNotes": "Release Notes",
+      "buildOutputDir": "Build Output Directory",
+      "summary": "Setup Summary"
+    },
+    "summary": {
+      "title": "Setup Summary",
+      "notSet": "Not set",
+      "fields": {
+        "projectName": "Project Name",
+        "googlePlayServiceAccountKeyPath": "Google Play Service Account Key Path",
+        "googlePlayPackageName": "Google Play Package Name",
+        "appleApiKeyPath": "Apple API Key Path",
+        "appleApiKeyId": "Apple API Key ID",
+        "appleApiIssuerId": "Apple API Issuer ID",
+        "appleTeamId": "Apple Team ID",
+        "appleBundleId": "Apple Bundle ID",
+        "releaseNotesTr": "Release Notes TR",
+        "releaseNotesEn": "Release Notes EN",
+        "buildOutputDir": "Build Output Dir"
+      }
+    },
     "info": {
       "description": "Starts setup procedures",
       "projectInfo": {
         "description": "Configures the project name (PROJECT_NAME)",
+        "summaryLabel": "Project Name",
         "prompt": "Enter the project name"
+      },
+      "androidSettings": {
+        "description": "Configures Google Play service credentials",
+        "summaryLabel": "Android Package",
+        "options": {
+          "googlePlayServiceAccountKeyPath": "Path to the Google Play service account key JSON",
+          "googlePlayPackageName": "Google Play package name"
+        },
+        "prompts": {
+          "googlePlayServiceAccountKeyPath": "Enter the Google Play service account key path",
+          "keepExistingKeyPath": "Use the existing Google Play service account key path ({{{path}}})?",
+          "googlePlayServiceAccountKeyPathSearch": "Select or search for the Google Play service account key JSON",
+          "googlePlayPackageName": "Enter the Google Play package name"
+        },
+        "choices": {
+          "enterCustomPath": "Enter a custom path"
+        }
+      },
+      "iosSettings": {
+        "description": "Configures Apple API credentials",
+        "summaryLabel": "Apple Bundle ID",
+        "options": {
+          "appleApiKeyPath": "Path to the Apple API key (.p8) file",
+          "appleApiKeyId": "Apple API Key ID",
+          "appleApiIssuerId": "Apple API Issuer ID",
+          "appleTeamId": "Apple Team ID",
+          "appleBundleId": "Apple Bundle Identifier"
+        },
+        "prompts": {
+          "appleApiKeyPath": "Enter the Apple API key path",
+          "appleApiKeyPathSearch": "Select or search for the Apple API key (.p8) file",
+          "appleApiKeyId": "Enter the Apple API Key ID",
+          "appleApiIssuerId": "Enter the Apple API Issuer ID",
+          "appleTeamId": "Enter the Apple Team ID",
+          "appleBundleId": "Enter the Apple Bundle Identifier"
+        },
+        "choices": {
+          "enterCustomPath": "Enter a custom path"
+        }
+      },
+      "releaseNotes": {
+        "description": "Configures localized release notes",
+        "summaryLabel": "Release Notes",
+        "options": {
+          "releaseNotesTr": "Release notes (Turkish)",
+          "releaseNotesEn": "Release notes (English)"
+        },
+        "prompts": {
+          "releaseNotesTr": "Enter release notes (TR)",
+          "releaseNotesEn": "Enter release notes (EN)"
+        }
+      },
+      "buildOutputDir": {
+        "description": "Configures the build output directory",
+        "summaryLabel": "Build Output Directory",
+        "options": {
+          "buildOutputDir": "Build output directory path"
+        },
+        "prompts": {
+          "buildOutputDir": "Enter the build output directory"
+        }
+      },
+      "full": {
+        "description": "Runs all setup steps sequentially"
       }
     },
     "success": {
-      "projectInfoUpdated": "✅ PROJECT_NAME updated to {{name}}. File: {{path}}"
+      "projectInfoUpdated": "✅ Project information updated.",
+      "androidSettingsUpdated": "✅ Android settings updated.",
+      "iosSettingsUpdated": "✅ iOS settings updated.",
+      "releaseNotesUpdated": "✅ Release notes updated.",
+      "buildOutputDirUpdated": "✅ Build output directory updated.",
+      "fullCompleted": "✅ All setup steps were completed."
     },
     "error": {
-      "projectInfoEmpty": "❌ No valid project name provided. Operation aborted."
+      "projectInfoEmpty": "❌ No valid project name provided. Operation aborted.",
+      "androidSettingsMissingFields": "❌ Both the service account path and package name must be provided.",
+      "iosSettingsMissingFields": "❌ All Apple API credentials must be provided.",
+      "releaseNotesMissingFields": "❌ Both Turkish and English release notes must be provided.",
+      "buildOutputDirMissing": "❌ Build output directory must be provided."
     }
   }
 }
