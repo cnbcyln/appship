@@ -93,9 +93,10 @@ async function ensureFastlane() {
     justInstalled = true;
   }
 
-  const version = readVersion('fastlane', ['--version']);
-  if (version) {
-    console.log(colors.gray(`📦 Sürüm: ${version}`));
+  const fastlaneVersionRaw = readVersion('fastlane', ['--version']);
+  if (fastlaneVersionRaw) {
+    const fastlaneVersion = extractFastlaneVersion(fastlaneVersionRaw);
+    console.log(colors.gray(`📦 Sürüm: ${fastlaneVersion}`));
   }
 
   if (justInstalled) {
@@ -340,6 +341,19 @@ function checkFastlaneUpdateStatus() {
   }
 
   return { status: 'unknown' };
+}
+
+function extractFastlaneVersion(output) {
+  if (!output) {
+    return 'bilinmiyor';
+  }
+
+  const versionMatch = output.match(/(\d+\.\d+\.\d+)/);
+  if (versionMatch) {
+    return `fastlane ${versionMatch[1]}`;
+  }
+
+  return output.split(/\r?\n/)[0].trim();
 }
 
 module.exports = doctorCommand;

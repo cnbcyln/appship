@@ -42,8 +42,25 @@ function readVersion(command, args) {
     return null;
   }
 
-  const firstLine = result.stdout.split(/\r?\n/)[0];
-  return firstLine.trim();
+  const trimmedOutput = result.stdout.trim();
+  if (!trimmedOutput) {
+    return null;
+  }
+
+  const lines = trimmedOutput
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  if (lines.length === 0) {
+    return trimmedOutput;
+  }
+
+  if (lines[0].toLowerCase().includes('installation at path') && lines.length > 1) {
+    return `${lines[0]} ${lines[1]}`;
+  }
+
+  return lines[0];
 }
 
 module.exports = {
