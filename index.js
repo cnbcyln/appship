@@ -3,6 +3,7 @@
 const { Command } = require('commander');
 const pkg = require('./package.json');
 const setup = require('./src/commands/setup/index.js');
+const doctor = require('./src/commands/doctor/index.js');
 
 const program = new Command();
 
@@ -12,5 +13,6 @@ program
   .version(pkg.version);
 
 setup(program);
+doctor(program);
 
 program.parse(process.argv);

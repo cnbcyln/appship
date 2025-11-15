@@ -16,6 +16,7 @@
     "appship": "bin/appship"
   },
   "dependencies": {
+    "colors": "^1.4.0",
     "commander": "^14.0.2"
   }
 }
