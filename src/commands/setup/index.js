@@ -6,7 +6,7 @@ function setupCommand(program) {
     .option('--flutter', 'Flutter kontrolü yapar. Yüklü değilse yükler.')
     .option('--fastlane', 'Fastlane kontrolü yapar. Yüklü değilse yükler.')
     .action((options) => {
-      
+      console.log(options);
     });
 
   return program;
