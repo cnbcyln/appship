@@ -1,0 +1,53 @@
+const chalk = require('chalk');
+const { select } = require('@inquirer/prompts');
+const { readConfig, updateConfig, ensureConfigFile } = require('../../utils/config');
+const { t, setLocale } = require('../../i18n');
+
+const AVAILABLE_LANGUAGES = [
+  { value: 'en', labelKey: 'lang.languages.en' },
+  { value: 'tr', labelKey: 'lang.languages.tr' },
+];
+
+function registerLangCommand(program) {
+  program
+    .command('lang')
+    .description(t('lang.description'))
+    .action(async () => {
+      ensureConfigFile();
+
+      if (!process.stdin.isTTY) {
+        console.log(chalk.red(t('lang.nonInteractive')));
+        process.exitCode = 1;
+        return;
+      }
+
+      const current = readConfig().LANGUAGE || 'en';
+      const choices = AVAILABLE_LANGUAGES.map((item) => ({
+        name: t(item.labelKey),
+        value: item.value,
+      }));
+
+      const language = await select({
+        message: t('lang.prompt'),
+        choices,
+        loop: false,
+        default: current,
+      });
+
+      if (language === current) {
+        console.log(chalk.yellow(t('lang.noChange', { language: t(getLabelKey(language)) })));
+        return;
+      }
+
+      updateConfig({ LANGUAGE: language });
+      setLocale(language);
+      console.log(chalk.green(t('lang.success', { language: t(getLabelKey(language)) })));
+    });
+}
+
+function getLabelKey(code) {
+  const entry = AVAILABLE_LANGUAGES.find((item) => item.value === code);
+  return entry ? entry.labelKey : 'lang.languages.en';
+}
+
+module.exports = registerLangCommand;

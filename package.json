@@ -16,7 +16,8 @@
     "appship": "bin/appship"
   },
   "dependencies": {
-    "colors": "^1.4.0",
+    "@inquirer/prompts": "^7.10.1",
+    "chalk": "^4.1.2",
     "commander": "^14.0.2",
     "i18n": "^0.15.3"
   }

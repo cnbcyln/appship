@@ -15,9 +15,7 @@ i18n.configure({
 
 function initI18n() {
   const language = ensureLanguageValue();
-  const available = i18n.getLocales();
-  const locale = available.includes(language) ? language : 'en';
-  i18n.setLocale(locale);
+  setLocale(language);
   return i18n;
 }
 
@@ -28,8 +26,16 @@ function t(key, replacements) {
   return i18n.__(key);
 }
 
+function setLocale(language) {
+  const available = i18n.getLocales();
+  const locale = available.includes(language) ? language : 'en';
+  i18n.setLocale(locale);
+  return locale;
+}
+
 module.exports = {
   initI18n,
   t,
   i18n,
+  setLocale,
 };

@@ -1,11 +1,12 @@
-const colors = require('colors/safe');
+const chalk = require('chalk');
 const { ensureConfigFile, updateConfig, readConfig, getConfigPath } = require('../../utils/config');
-const { promptInput } = require('../../utils/prompt');
+const { input } = require('@inquirer/prompts');
 const { t } = require('../../i18n');
 
 function registerProjectInfoCommand(setup) {
   setup
     .command('project-info')
+    .alias('pi')
     .description(t('setup.projectInfo.description'))
     .option('--name <name>', t('setup.projectInfo.prompt'))
     .action(async (options) => {
@@ -16,18 +17,23 @@ function registerProjectInfoCommand(setup) {
       const projectName =
         options.name && options.name.trim().length > 0
           ? options.name.trim()
-          : await promptInput(t('setup.projectInfo.prompt'), { defaultValue: existingName });
+          : await input({
+              message: t('setup.projectInfo.prompt'),
+              default: existingName,
+            });
 
-      if (!projectName) {
-        console.error(colors.red(t('setup.projectInfo.emptyError')));
+      const normalizedName = (projectName || '').trim();
+
+      if (!normalizedName) {
+        console.log(chalk.red(t('setup.projectInfo.emptyError')));
         process.exitCode = 1;
         return;
       }
 
-      updateConfig({ PROJECT_NAME: projectName });
+      updateConfig({ PROJECT_NAME: normalizedName });
       console.log(
-        colors.green(
-          t('setup.projectInfo.success', { name: projectName, path: getConfigPath() })
+        chalk.green(
+          t('setup.projectInfo.success', { name: normalizedName, path: getConfigPath() })
         )
       );
     });

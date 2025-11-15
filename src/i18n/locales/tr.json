@@ -3,6 +3,17 @@
     "unknownError": "bilinmeyen hata",
     "unknownValue": "bilinmiyor"
   },
+  "lang": {
+    "description": "AppShip CLI'nin kullanacağı dili seçin",
+    "prompt": "Bir dil seçin",
+    "success": "Dil {{language}} olarak güncellendi.",
+    "noChange": "Dil zaten {{language}} olarak ayarlı.",
+    "nonInteractive": "Etkileşimli olmayan ortamda dil değiştirilemez.",
+    "languages": {
+      "en": "English",
+      "tr": "Türkçe"
+    }
+  },
   "doctor": {
     "description": "AppShip CLI için gerekli olan paketleri kontrol eder",
     "options": {

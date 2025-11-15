@@ -6,10 +6,6 @@ function setupCommand(program) {
 
   registerProjectInfoCommand(setup);
 
-  setup.action(() => {
-    setup.outputHelp();
-  });
-
   return program;
 }
 

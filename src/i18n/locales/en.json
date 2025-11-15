@@ -3,6 +3,17 @@
     "unknownError": "unknown error",
     "unknownValue": "unknown"
   },
+  "lang": {
+    "description": "Select the language used by AppShip CLI",
+    "prompt": "Choose a language",
+    "success": "Language updated to {{language}}.",
+    "noChange": "Language already set to {{language}}.",
+    "nonInteractive": "Cannot change language in a non-interactive environment.",
+    "languages": {
+      "en": "English",
+      "tr": "Türkçe"
+    }
+  },
   "doctor": {
     "description": "Verifies the required packages for AppShip CLI",
     "options": {

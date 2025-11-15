@@ -1,25 +1,17 @@
-const colors = require('colors/safe');
+const chalk = require('chalk');
 const { runFlutterDoctor } = require('./flutter');
 const { runFastlaneDoctor } = require('./fastlane');
 const { t } = require('../../i18n');
 
 function doctorCommand(program) {
-  const doctor = program
+  program
     .command('doctor')
     .description(t('doctor.description'))
     .option('--flutter', t('doctor.options.flutter'))
-    .option('--fastlane', t('doctor.options.fastlane'));
-
-  doctor
-    .command('help')
-    .description(t('doctor.helpDescription'))
-    .action(() => {
-      doctor.outputHelp();
-    });
-
-  doctor.action(async (options) => {
+    .option('--fastlane', t('doctor.options.fastlane'))
+    .action(async (options) => {
     try {
-      console.log(colors.cyan.bold(`${t('doctor.intro')}\n`));
+      console.log(chalk.cyan.bold(`${t('doctor.intro')}\n`));
 
       const targets = resolveTargets(options);
       let overallSuccess = true;
@@ -33,13 +25,13 @@ function doctorCommand(program) {
       }
 
       const finalMessage = overallSuccess ? t('doctor.complete') : t('doctor.partial');
-      const finalColor = overallSuccess ? colors.green : colors.yellow;
+      const finalColor = overallSuccess ? chalk.green : chalk.yellow;
       console.log(finalColor.bold(`\n${finalMessage}`));
       if (!overallSuccess) {
         process.exitCode = 1;
       }
     } catch (error) {
-      console.error(colors.red(`\n${t('doctor.unexpectedError', { message: error.message })}`));
+      console.log(chalk.red(`\n${t('doctor.unexpectedError', { message: error.message })}`));
       process.exitCode = 1;
     }
   });
