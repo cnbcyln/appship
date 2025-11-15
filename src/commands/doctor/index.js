@@ -1,7 +1,12 @@
-const { spawnSync } = require('child_process');
 const os = require('os');
 const colors = require('colors/safe');
 const { confirm } = require('../../utils/confirm');
+const {
+  runCommand,
+  commandExists,
+  getCommandPath,
+  readVersion,
+} = require('../../utils/process');
 
 function doctorCommand(program) {
   program
@@ -56,13 +61,8 @@ async function ensureFlutter() {
     if (updateStatus.status === 'up_to_date') {
       console.log(colors.green('✅ Flutter güncel.'));
     } else if (updateStatus.status === 'needs_update') {
-      if (updateStatus.message) {
-        console.log(colors.yellow(updateStatus.message));
-      } else {
-        console.log(colors.yellow('⚠️  Flutter için yeni bir sürüm mevcut.'));
-      }
-
-      const wantsUpdate = await confirmUpdate('Flutter', 'flutter upgrade');
+      console.log(colors.yellow(updateStatus.message || '⚠️  Flutter için yeni bir sürüm mevcut.'));
+      const wantsUpdate = await confirm('Flutter için güncelleme yapmak ister misiniz?', { defaultValue: false });
       if (!wantsUpdate) {
         console.log(colors.yellow('⏭ Flutter güncellemesi kullanıcı tarafından atlandı.'));
       } else {
@@ -111,16 +111,11 @@ async function ensureFastlane() {
   }
 
   if (updateStatus.status === 'needs_update') {
-    if (updateStatus.message) {
-      console.log(colors.yellow(updateStatus.message));
-    } else {
-      console.log(colors.yellow('⚠️  Fastlane için yeni bir sürüm mevcut.'));
-    }
-
-    const wantsUpdate = await confirmUpdate('Fastlane', updateStatus.command || 'fastlane update_fastlane');
+    console.log(colors.yellow(updateStatus.message || '⚠️  Fastlane için yeni bir sürüm mevcut.'));
+    const wantsUpdate = await confirm('Fastlane için güncelleme yapmak ister misiniz?', { defaultValue: false });
     if (!wantsUpdate) {
       console.log(colors.yellow('⏭ Fastlane güncellemesi kullanıcı tarafından atlandı.'));
-      return true;
+      return false;
     }
 
     return updateFastlane();
@@ -237,57 +232,6 @@ function adviseManualFastlaneInstall() {
   } else {
     console.log('  • Genel talimat: https://docs.fastlane.tools');
   }
-}
-
-function runCommand(command, args = [], options = {}) {
-  const spawnOptions = {
-    stdio: options.inherit ? 'inherit' : 'pipe',
-    shell: options.shell || false,
-    env: options.env || process.env,
-  };
-
-  const result = spawnSync(command, args, spawnOptions);
-
-  if (result.error) {
-    return { success: false, stdout: '', stderr: result.error.message };
-  }
-
-  return {
-    success: result.status === 0,
-    stdout: result.stdout ? result.stdout.toString().trim() : '',
-    stderr: result.stderr ? result.stderr.toString().trim() : '',
-  };
-}
-
-function commandExists(command) {
-  const checkCommand = process.platform === 'win32' ? 'where' : 'which';
-  const result = runCommand(checkCommand, [command]);
-  return result.success && Boolean(result.stdout);
-}
-
-function getCommandPath(command) {
-  const checkCommand = process.platform === 'win32' ? 'where' : 'which';
-  const result = runCommand(checkCommand, [command]);
-  if (!result.success || !result.stdout) {
-    return null;
-  }
-
-  return result.stdout.split(/\r?\n/)[0].trim();
-}
-
-function readVersion(command, args) {
-  const result = runCommand(command, args);
-  if (!result.success || !result.stdout) {
-    return null;
-  }
-
-  const firstLine = result.stdout.split(/\r?\n/)[0];
-  return firstLine.trim();
-}
-
-function confirmUpdate(toolName, commandPreview) {
-  const question = `${toolName} için "${commandPreview}" komutunu çalıştırıp güncelleme yapmak ister misiniz?`;
-  return confirm(question, { defaultValue: false });
 }
 
 function verifyFlutterDoctor() {
