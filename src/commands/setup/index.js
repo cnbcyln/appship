@@ -1,11 +1,14 @@
+const { t } = require('../../i18n');
+const registerProjectInfoCommand = require('./projectInfo');
+
 function setupCommand(program) {
-  program
-    .command('setup')
-    .description('Kurulum işlemlerini başlatır')
-    .option('-f, --full', 'Full kurulum işlemini başlatır')
-    .action((options) => {
-      console.log(options);
-    });
+  const setup = program.command('setup').description(t('setup.description'));
+
+  registerProjectInfoCommand(setup);
+
+  setup.action(() => {
+    setup.outputHelp();
+  });
 
   return program;
 }

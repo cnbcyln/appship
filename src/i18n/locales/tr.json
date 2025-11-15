@@ -1,0 +1,88 @@
+{
+  "common": {
+    "unknownError": "bilinmeyen hata",
+    "unknownValue": "bilinmiyor"
+  },
+  "doctor": {
+    "description": "AppShip CLI için gerekli olan paketleri kontrol eder",
+    "options": {
+      "flutter": "Sadece Flutter kontrollerini çalıştırır",
+      "fastlane": "Sadece Fastlane kontrollerini çalıştırır"
+    },
+    "intro": "🔎 AppShip Doctor başladı",
+    "complete": "✅ Seçilen tüm kontroller başarıyla tamamlandı.",
+    "partial": "⚠️  Bazı kontroller başarısız oldu. Yukarıdaki yönergeleri takip edin.",
+    "helpDescription": "Doctor komutuna ait yardım mesajını gösterir",
+    "unexpectedError": "💥 Beklenmeyen hata: {{message}}",
+    "flutter": {
+      "title": "==> Flutter",
+      "notInstalled": "❌ Flutter yüklü değil.",
+      "version": "📦 Sürüm: {{value}}",
+      "newInstallSkip": "✨ Flutter yeni yüklendi, güncelleme adımı atlandı.",
+      "upToDate": "✅ Flutter güncel.",
+      "updateAvailable": "⚠️  Flutter için yeni bir sürüm mevcut.",
+      "updatePrompt": "Flutter'ı güncellemek için 'flutter upgrade' komutunu çalıştırmak ister misiniz?",
+      "updateSkipped": "⏭ Flutter güncellemesi kullanıcı tarafından atlandı.",
+      "updateStatusUnknown": "⚠️  Flutter güncelleme durumu tespit edilemedi. 'flutter upgrade --verify-only' komutunu manuel çalıştırabilirsiniz.",
+      "updateCheck": "🔄 Flutter güncellemesi kontrol ediliyor (flutter upgrade)...",
+      "updateFailure": "❌ Flutter güncellemesi başarısız oldu. Lütfen 'flutter upgrade' komutunu manuel çalıştırın.",
+      "installBrew": "➡️  Homebrew ile Flutter kurulumu başlatılıyor (brew install --cask flutter)...",
+      "installSuccess": "✅ Flutter başarıyla kuruldu.",
+      "installFailure": "❌ Homebrew Flutter kurulumu başarısız oldu.",
+      "manual": {
+        "title": "ℹ️  Flutter kurulum adımları:",
+        "macos": "  • Homebrew dışı kurulum için: https://docs.flutter.dev/get-started/install/macos",
+        "linuxSnap": "  • Snap ile kurulum: sudo snap install flutter --classic",
+        "linuxAlt": "  • Alternatif talimatlar: https://docs.flutter.dev/get-started/install/linux",
+        "windows": "  • Chocolatey ile kurulum: choco install flutter",
+        "generic": "  • Platform dokümantasyonu: https://docs.flutter.dev/get-started/install"
+      },
+      "doctorRun": "🩺 Flutter Doctor kontrol ediliyor...",
+      "doctorFailure": "❌ Flutter Doctor çalıştırılırken hata oluştu: {{message}}. Lütfen manuel kontrol edin.",
+      "doctorSuccess": "✅ Flutter Doctor tüm kontrollerden geçti.",
+      "doctorIssues": "❌ Flutter Doctor bazı kontrollerde başarısız. Yukarıdaki raporu inceleyip gereksinimleri tamamlayın.",
+      "verifyFailure": "⚠️  Flutter güncellemesi doğrulanamadı ({{message}}). Manuel kontrol önerilir."
+    },
+    "fastlane": {
+      "title": "==> Fastlane",
+      "notInstalled": "❌ Fastlane yüklü değil.",
+      "version": "📦 Sürüm: fastlane {{value}}",
+      "newInstallSkip": "✨ Fastlane yeni yüklendi, güncelleme adımı atlandı.",
+      "upToDate": "✅ Fastlane güncel.",
+      "updateAvailable": "⚠️  Fastlane için yeni bir sürüm mevcut.",
+      "updatePrompt": "Fastlane'i şimdi güncellemek ister misiniz?",
+      "updatePromptCommand": "Fastlane'i güncellemek için '{{command}}' komutunu çalıştırmak ister misiniz?",
+      "updateSkipped": "⏭ Fastlane güncellemesi kullanıcı tarafından atlandı.",
+      "updateStatusUnknown": "⚠️  Fastlane güncelleme durumu tespit edilemedi. 'fastlane update_fastlane' veya paket yöneticinizi manuel çalıştırın.",
+      "updateBrew": "🔄 Fastlane Homebrew üzerinden güncelleniyor (brew upgrade fastlane)...",
+      "updateFallback": "⚠️  Homebrew güncellemesi başarısız oldu, fastlane update_fastlane komutuna geçiliyor.",
+      "updateFastlane": "🔄 Fastlane güncellemesi kontrol ediliyor (fastlane update_fastlane)...",
+      "updateFailure": "❌ Fastlane güncellemesi başarısız oldu. 'brew upgrade fastlane' veya 'gem update fastlane' komutlarını manuel çalıştırın.",
+      "installBrew": "➡️  Homebrew ile Fastlane kurulumu başlatılıyor (brew install fastlane)...",
+      "installGem": "➡️  RubyGems ile Fastlane kurulumu başlatılıyor (gem install fastlane -NV)...",
+      "installSuccess": "✅ Fastlane başarıyla kuruldu.",
+      "installFailureBrew": "❌ Homebrew Fastlane kurulumu başarısız oldu.",
+      "installFailureGem": "❌ RubyGems Fastlane kurulumu başarısız oldu.",
+      "installMissingManager": "⚠️  Fastlane kurulumu için Homebrew veya RubyGems gereklidir. Lütfen uygun paket yöneticisini kurun.",
+      "manual": {
+        "title": "ℹ️  Fastlane kurulum adımları:",
+        "macos": "  • RubyGems ile kurulum: sudo gem install fastlane -NV",
+        "linux": "  • RubyGems ile kurulum: sudo gem install fastlane -NV",
+        "windows": "  • Scoop veya Chocolatey: choco install fastlane",
+        "generic": "  • Dokümantasyon: https://docs.fastlane.tools"
+      },
+      "updateStatusBrew": "⚠️  Homebrew deposunda Fastlane için güncelleme bulundu.",
+      "updateStatusGem": "⚠️  RubyGems deposunda Fastlane için güncelleme bulundu.",
+      "updateStatusNoManager": "⚠️  Homebrew ve RubyGems bulunamadığı için Fastlane güncelleme kontrolü atlandı."
+    }
+  },
+  "setup": {
+    "description": "Kurulum işlemlerini başlatır",
+    "projectInfo": {
+      "description": "Proje adını (PROJECT_NAME) yapılandırır",
+      "prompt": "Proje adını girin",
+      "emptyError": "❌ Geçerli bir proje adı girilmedi. İşlem iptal edildi.",
+      "success": "✅ PROJECT_NAME güncellendi: {{name}}. Dosya: {{path}}"
+    }
+  }
+}
