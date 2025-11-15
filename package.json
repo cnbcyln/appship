@@ -1,16 +1,21 @@
 {
-  "name": "appship",
+  "name": "@cbctech/appship",
   "version": "1.0.0",
-  "description": "",
+  "description": "AppShip CLI - mobile build & deploy otomasyon aracı",
+  "keywords": [
+    "cli",
+    "flutter",
+    "deploy",
+    "build",
+    "mobile"
+  ],
+  "author": "CBCTech",
+  "license": "MIT",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "bin": {
     "appship": "bin/appship"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs"
+  "dependencies": {
+    "commander": "^14.0.2"
+  }
 }
