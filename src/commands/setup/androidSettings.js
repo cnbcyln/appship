@@ -56,7 +56,10 @@ async function handleAndroidSettings(options = {}) {
     }));
 
   const normalizedKeyPath = (serviceAccountPath || '').trim();
- const normalizedPackageName = (packageName || '').trim();
+  let normalizedPackageName = (packageName || '').trim();
+  if (!normalizedPackageName && defaults.packageName) {
+    normalizedPackageName = defaults.packageName;
+  }
 
   if (!normalizedKeyPath || !normalizedPackageName) {
     console.log(chalk.red(t('setup.error.androidSettingsMissingFields')));
