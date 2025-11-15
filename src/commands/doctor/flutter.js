@@ -5,11 +5,11 @@ const { runCommand, commandExists, readVersion } = require('../../utils/process'
 const { t } = require('../../i18n');
 
 async function runFlutterDoctor() {
-  console.log(chalk.cyan.bold(t('doctor.flutter.title')));
+  console.log(chalk.cyan.bold(t('doctor.flutter.info.title')));
   let justInstalled = false;
 
   if (!commandExists('flutter')) {
-    console.log(chalk.red(t('doctor.flutter.notInstalled')));
+    console.log(chalk.red(t('doctor.error.flutter.notInstalled')));
     const installed = attemptFlutterInstall();
     if (!installed) {
       adviseManualFlutterInstall();
@@ -18,28 +18,28 @@ async function runFlutterDoctor() {
     justInstalled = true;
   }
 
-const version = readVersion('flutter', ['--version']);
-if (version) {
-    console.log(chalk.gray(t('doctor.flutter.version', { value: formatFlutterVersion(version) })));
-}
+  const version = readVersion('flutter', ['--version']);
+  if (version) {
+    console.log(chalk.gray(t('doctor.flutter.info.version', { value: formatFlutterVersion(version) })));
+  }
 
   if (justInstalled) {
-    console.log(chalk.green(t('doctor.flutter.newInstallSkip')));
+    console.log(chalk.green(t('doctor.success.flutter.newInstallSkip')));
   } else {
     const updateStatus = checkFlutterUpdateStatus();
 
     if (updateStatus.status === 'up_to_date') {
-      console.log(chalk.green(t('doctor.flutter.upToDate')));
+      console.log(chalk.green(t('doctor.success.flutter.upToDate')));
     } else if (updateStatus.status === 'needs_update') {
-      console.log(chalk.yellow(t('doctor.flutter.updateAvailable')));
-      const wantsUpdate = await confirm(t('doctor.flutter.updatePrompt'), { defaultValue: false });
+      console.log(chalk.yellow(t('doctor.warning.flutter.updateAvailable')));
+      const wantsUpdate = await confirm(t('doctor.warning.flutter.updatePrompt'), { defaultValue: false });
       if (!wantsUpdate) {
-        console.log(chalk.yellow(t('doctor.flutter.updateSkipped')));
+        console.log(chalk.yellow(t('doctor.warning.flutter.updateSkipped')));
       } else if (!updateFlutter()) {
         return false;
       }
     } else {
-      console.log(chalk.yellow(t('doctor.flutter.updateStatusUnknown')));
+      console.log(chalk.yellow(t('doctor.warning.flutter.updateStatusUnknown')));
     }
   }
 
@@ -47,53 +47,53 @@ if (version) {
 }
 
 function updateFlutter() {
-  console.log(chalk.blue(t('doctor.flutter.updateCheck')));
+  console.log(chalk.blue(t('doctor.flutter.info.updateCheck')));
   const result = runCommand('flutter', ['upgrade'], { inherit: true });
   if (result.success) {
-    console.log(chalk.green(t('doctor.flutter.upToDate')));
+    console.log(chalk.green(t('doctor.success.flutter.upToDate')));
     return true;
   }
 
-  console.log(chalk.red(t('doctor.flutter.updateFailure')));
+  console.log(chalk.red(t('doctor.error.flutter.updateFailure')));
   return false;
 }
 
 function attemptFlutterInstall() {
   if (os.platform() === 'darwin' && commandExists('brew')) {
-    console.log(chalk.blue(t('doctor.flutter.installBrew')));
+    console.log(chalk.blue(t('doctor.flutter.info.installBrew')));
     const result = runCommand('brew', ['install', '--cask', 'flutter'], { inherit: true });
     if (result.success) {
-      console.log(chalk.green(t('doctor.flutter.installSuccess')));
+      console.log(chalk.green(t('doctor.success.flutter.installSuccess')));
       return true;
     }
 
-    console.log(chalk.red(t('doctor.flutter.installFailure')));
+    console.log(chalk.red(t('doctor.error.flutter.installFailure')));
   }
 
   return false;
 }
 
 function adviseManualFlutterInstall() {
-  console.log(chalk.yellow(t('doctor.flutter.manual.title')));
+  console.log(chalk.yellow(t('doctor.flutter.info.manual.title')));
   if (os.platform() === 'darwin') {
-    console.log(t('doctor.flutter.manual.macos'));
+    console.log(t('doctor.flutter.info.manual.macos'));
   } else if (os.platform() === 'linux') {
-    console.log(t('doctor.flutter.manual.linuxSnap'));
-    console.log(t('doctor.flutter.manual.linuxAlt'));
+    console.log(t('doctor.flutter.info.manual.linuxSnap'));
+    console.log(t('doctor.flutter.info.manual.linuxAlt'));
   } else if (os.platform() === 'win32') {
-    console.log(t('doctor.flutter.manual.windows'));
+    console.log(t('doctor.flutter.info.manual.windows'));
   } else {
-    console.log(t('doctor.flutter.manual.generic'));
+    console.log(t('doctor.flutter.info.manual.generic'));
   }
 }
 
 function verifyFlutterDoctor() {
-  console.log(chalk.blue(t('doctor.flutter.doctorRun')));
+  console.log(chalk.blue(t('doctor.flutter.info.doctorRun')));
   const result = runCommand('flutter', ['doctor']);
 
   if (!result.success) {
     console.log(
-      chalk.red(t('doctor.flutter.doctorFailure', { message: result.stderr || t('common.unknownError') }))
+      chalk.red(t('doctor.error.flutter.doctorFailure', { message: result.stderr || t('common.unknownError') }))
     );
     return false;
   }
@@ -111,11 +111,11 @@ function verifyFlutterDoctor() {
   const noIssuesMessage = normalizedOutput.includes('no issues found');
 
   if (!hasIssues && noIssuesMessage) {
-    console.log(chalk.green(t('doctor.flutter.doctorSuccess')));
+    console.log(chalk.green(t('doctor.success.flutter.doctorSuccess')));
     return true;
   }
 
-  console.log(chalk.red(t('doctor.flutter.doctorIssues')));
+  console.log(chalk.red(t('doctor.error.flutter.doctorIssues')));
   return false;
 }
 
@@ -125,7 +125,7 @@ function checkFlutterUpdateStatus() {
   if (!result.success) {
     console.log(
       chalk.yellow(
-        t('doctor.flutter.verifyFailure', { message: result.stderr || t('common.unknownError') })
+        t('doctor.warning.flutter.verifyFailure', { message: result.stderr || t('common.unknownError') })
       )
     );
     return { status: 'unknown' };

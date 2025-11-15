@@ -4,19 +4,19 @@ const { readConfig, updateConfig, ensureConfigFile } = require('../../utils/conf
 const { t, setLocale } = require('../../i18n');
 
 const AVAILABLE_LANGUAGES = [
-  { value: 'en', labelKey: 'lang.languages.en' },
-  { value: 'tr', labelKey: 'lang.languages.tr' },
+  { value: 'en', labelKey: 'lang.info.languages.en' },
+  { value: 'tr', labelKey: 'lang.info.languages.tr' },
 ];
 
 function registerLangCommand(program) {
   program
     .command('lang')
-    .description(t('lang.description'))
+    .description(t('lang.info.description'))
     .action(async () => {
       ensureConfigFile();
 
       if (!process.stdin.isTTY) {
-        console.log(chalk.red(t('lang.nonInteractive')));
+        console.log(chalk.red(t('lang.error.nonInteractive')));
         process.exitCode = 1;
         return;
       }
@@ -28,26 +28,26 @@ function registerLangCommand(program) {
       }));
 
       const language = await select({
-        message: t('lang.prompt'),
+        message: t('lang.info.prompt'),
         choices,
         loop: false,
         default: current,
       });
 
       if (language === current) {
-        console.log(chalk.yellow(t('lang.noChange', { language: t(getLabelKey(language)) })));
+        console.log(chalk.yellow(t('lang.warning.noChange', { language: t(getLabelKey(language)) })));
         return;
       }
 
       updateConfig({ LANGUAGE: language });
       setLocale(language);
-      console.log(chalk.green(t('lang.success', { language: t(getLabelKey(language)) })));
+      console.log(chalk.green(t('lang.success.updated', { language: t(getLabelKey(language)) })));
     });
 }
 
 function getLabelKey(code) {
   const entry = AVAILABLE_LANGUAGES.find((item) => item.value === code);
-  return entry ? entry.labelKey : 'lang.languages.en';
+  return entry ? entry.labelKey : 'lang.info.languages.en';
 }
 
 module.exports = registerLangCommand;

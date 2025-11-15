@@ -1,99 +1,141 @@
 {
   "common": {
     "unknownError": "unknown error",
-    "unknownValue": "unknown"
+    "unknownValue": "unknown",
+    "errors": {
+      "excessArguments": "Too many arguments for '{{command}}'. Expected {{expected}} but received {{received}}."
+    }
   },
   "lang": {
-    "description": "Select the language used by AppShip CLI",
-    "prompt": "Choose a language",
-    "success": "Language updated to {{language}}.",
-    "noChange": "Language already set to {{language}}.",
-    "nonInteractive": "Cannot change language in a non-interactive environment.",
-    "languages": {
-      "en": "English",
-      "tr": "Türkçe"
+    "info": {
+      "description": "Select the language used by AppShip CLI",
+      "prompt": "Choose a language",
+      "languages": {
+        "en": "English",
+        "tr": "Türkçe"
+      }
+    },
+    "success": {
+      "updated": "Language updated to {{language}}."
+    },
+    "warning": {
+      "noChange": "Language already set to {{language}}."
+    },
+    "error": {
+      "nonInteractive": "Cannot change language in a non-interactive environment."
     }
   },
   "doctor": {
-    "description": "Verifies the required packages for AppShip CLI",
-    "options": {
-      "flutter": "Run only Flutter checks",
-      "fastlane": "Run only Fastlane checks"
-    },
-    "intro": "🔎 AppShip Doctor started",
-    "complete": "✅ All selected checks completed successfully.",
-    "partial": "⚠️  Some checks failed. Follow the instructions above.",
-    "helpDescription": "Shows the help message for the doctor command",
-    "unexpectedError": "💥 Unexpected error: {{message}}",
-    "flutter": {
-      "title": "==> Flutter",
-      "notInstalled": "❌ Flutter is not installed.",
-      "version": "📦 Version: {{value}}",
-      "newInstallSkip": "✨ Flutter was just installed, skipping the update step.",
-      "upToDate": "✅ Flutter is up to date.",
-      "updateAvailable": "⚠️  A new Flutter version is available.",
-      "updatePrompt": "Would you like to run 'flutter upgrade' to update Flutter?",
-      "updateSkipped": "⏭ Flutter update was skipped by the user.",
-      "updateStatusUnknown": "⚠️  Unable to determine Flutter update status. Consider running 'flutter upgrade --verify-only' manually.",
-      "updateCheck": "🔄 Checking Flutter updates (flutter upgrade)...",
-      "updateFailure": "❌ Flutter update failed. Please run 'flutter upgrade' manually.",
-      "installBrew": "➡️  Installing Flutter via Homebrew (brew install --cask flutter)...",
-      "installSuccess": "✅ Flutter installed successfully.",
-      "installFailure": "❌ Flutter installation via Homebrew failed.",
-      "manual": {
-        "title": "ℹ️  Flutter installation steps:",
-        "macos": "  • For manual macOS installation: https://docs.flutter.dev/get-started/install/macos",
-        "linuxSnap": "  • Install via Snap: sudo snap install flutter --classic",
-        "linuxAlt": "  • Alternative instructions: https://docs.flutter.dev/get-started/install/linux",
-        "windows": "  • Install via Chocolatey: choco install flutter",
-        "generic": "  • Platform documentation: https://docs.flutter.dev/get-started/install"
+    "info": {
+      "description": "Verifies the required packages for AppShip CLI",
+      "options": {
+        "flutter": "Run only Flutter checks",
+        "fastlane": "Run only Fastlane checks"
       },
-      "doctorRun": "🩺 Running Flutter Doctor...",
-      "doctorFailure": "❌ Flutter Doctor failed: {{message}}. Please run it manually.",
-      "doctorSuccess": "✅ Flutter Doctor passed all checks.",
-      "doctorIssues": "❌ Flutter Doctor reported issues. Review the output above and resolve missing requirements.",
-      "verifyFailure": "⚠️  Unable to validate Flutter updates ({{message}}). Manual verification recommended."
+      "helpDescription": "Shows the help message for the doctor command",
+      "intro": "🔎 AppShip Doctor started"
+    },
+    "success": {
+      "complete": "✅ All selected checks completed successfully.",
+      "flutter": {
+        "newInstallSkip": "✨ Flutter was just installed, skipping the update step.",
+        "upToDate": "✅ Flutter is up to date.",
+        "installSuccess": "✅ Flutter installed successfully.",
+        "doctorSuccess": "✅ Flutter Doctor passed all checks."
+      },
+      "fastlane": {
+        "newInstallSkip": "✨ Fastlane was just installed, skipping the update step.",
+        "upToDate": "✅ Fastlane is up to date.",
+        "installSuccess": "✅ Fastlane installed successfully."
+      }
+    },
+    "warning": {
+      "partial": "⚠️  Some checks failed. Follow the instructions above.",
+      "flutter": {
+        "updateAvailable": "⚠️  A new Flutter version is available.",
+        "updatePrompt": "Would you like to run 'flutter upgrade' to update Flutter?",
+        "updateStatusUnknown": "⚠️  Unable to determine Flutter update status. Consider running 'flutter upgrade --verify-only' manually.",
+        "updateSkipped": "⏭ Flutter update was skipped by the user.",
+        "verifyFailure": "⚠️  Unable to validate Flutter updates ({{message}}). Manual verification recommended."
+      },
+      "fastlane": {
+        "updateAvailable": "⚠️  A new Fastlane version is available.",
+        "updateStatusUnknown": "⚠️  Unable to determine Fastlane update status. Please run 'fastlane update_fastlane' or your package manager manually.",
+        "updateStatusBrew": "⚠️  Homebrew reports that Fastlane has an available update.",
+        "updateStatusGem": "⚠️  RubyGems reports that Fastlane has an available update.",
+        "updateStatusNoManager": "⚠️  Fastlane update check skipped because Homebrew and RubyGems are unavailable.",
+        "updateFallback": "⚠️  Homebrew update failed, falling back to 'fastlane update_fastlane'.",
+        "installMissingManager": "⚠️  Fastlane installation requires Homebrew or RubyGems. Please install a package manager first.",
+        "updateSkipped": "⏭ Fastlane update was skipped by the user."
+      }
+    },
+    "error": {
+      "unexpected": "💥 Unexpected error: {{message}}",
+      "unknownArgument": "Unknown argument '{{value}}'. Run 'appship doctor help' for usage.",
+      "flutter": {
+        "notInstalled": "❌ Flutter is not installed.",
+        "updateFailure": "❌ Flutter update failed. Please run 'flutter upgrade' manually.",
+        "installFailure": "❌ Flutter installation via Homebrew failed.",
+        "doctorFailure": "❌ Flutter Doctor failed: {{message}}. Please run it manually.",
+        "doctorIssues": "❌ Flutter Doctor reported issues. Review the output above and resolve missing requirements."
+      },
+      "fastlane": {
+        "notInstalled": "❌ Fastlane is not installed.",
+        "updateFailure": "❌ Fastlane update failed. Run 'brew upgrade fastlane' or 'gem update fastlane' manually.",
+        "installFailureBrew": "❌ Fastlane installation via Homebrew failed.",
+        "installFailureGem": "❌ Fastlane installation via RubyGems failed."
+      }
+    },
+    "flutter": {
+      "info": {
+        "title": "==> Flutter",
+        "version": "📦 Version: {{value}}",
+        "updateCheck": "🔄 Checking Flutter updates (flutter upgrade)...",
+        "installBrew": "➡️  Installing Flutter via Homebrew (brew install --cask flutter)...",
+        "manual": {
+          "title": "ℹ️  Flutter installation steps:",
+          "macos": "  • For manual macOS installation: https://docs.flutter.dev/get-started/install/macos",
+          "linuxSnap": "  • Install via Snap: sudo snap install flutter --classic",
+          "linuxAlt": "  • Alternative instructions: https://docs.flutter.dev/get-started/install/linux",
+          "windows": "  • Install via Chocolatey: choco install flutter",
+          "generic": "  • Platform documentation: https://docs.flutter.dev/get-started/install"
+        },
+        "doctorRun": "🩺 Running Flutter Doctor..."
+      }
     },
     "fastlane": {
-      "title": "==> Fastlane",
-      "notInstalled": "❌ Fastlane is not installed.",
-      "version": "📦 Version: fastlane {{value}}",
-      "newInstallSkip": "✨ Fastlane was just installed, skipping the update step.",
-      "upToDate": "✅ Fastlane is up to date.",
-      "updateAvailable": "⚠️  A new Fastlane version is available.",
-      "updatePrompt": "Would you like to update Fastlane now?",
-      "updatePromptCommand": "Would you like to run '{{command}}' to update Fastlane?",
-      "updateSkipped": "⏭ Fastlane update was skipped by the user.",
-      "updateStatusUnknown": "⚠️  Unable to determine Fastlane update status. Please run 'fastlane update_fastlane' or your package manager manually.",
-      "updateBrew": "🔄 Updating Fastlane via Homebrew (brew upgrade fastlane)...",
-      "updateFallback": "⚠️  Homebrew update failed, falling back to 'fastlane update_fastlane'.",
-      "updateFastlane": "🔄 Checking Fastlane updates (fastlane update_fastlane)...",
-      "updateFailure": "❌ Fastlane update failed. Run 'brew upgrade fastlane' or 'gem update fastlane' manually.",
-      "installBrew": "➡️  Installing Fastlane via Homebrew (brew install fastlane)...",
-      "installGem": "➡️  Installing Fastlane via RubyGems (gem install fastlane -NV)...",
-      "installSuccess": "✅ Fastlane installed successfully.",
-      "installFailureBrew": "❌ Fastlane installation via Homebrew failed.",
-      "installFailureGem": "❌ Fastlane installation via RubyGems failed.",
-      "installMissingManager": "⚠️  Fastlane installation requires Homebrew or RubyGems. Please install a package manager first.",
-      "manual": {
-        "title": "ℹ️  Fastlane installation steps:",
-        "macos": "  • Install via RubyGems: sudo gem install fastlane -NV",
-        "linux": "  • Install via RubyGems: sudo gem install fastlane -NV",
-        "windows": "  • Install via Scoop or Chocolatey: choco install fastlane",
-        "generic": "  • Documentation: https://docs.fastlane.tools"
-      },
-      "updateStatusBrew": "⚠️  Homebrew reports that Fastlane has an available update.",
-      "updateStatusGem": "⚠️  RubyGems reports that Fastlane has an available update.",
-      "updateStatusNoManager": "⚠️  Fastlane update check skipped because Homebrew and RubyGems are unavailable."
+      "info": {
+        "title": "==> Fastlane",
+        "version": "📦 Version: fastlane {{value}}",
+        "updatePrompt": "Would you like to update Fastlane now?",
+        "updatePromptCommand": "Would you like to run '{{command}}' to update Fastlane?",
+        "updateBrew": "🔄 Updating Fastlane via Homebrew (brew upgrade fastlane)...",
+        "updateFastlane": "🔄 Checking Fastlane updates (fastlane update_fastlane)...",
+        "installBrew": "➡️  Installing Fastlane via Homebrew (brew install fastlane)...",
+        "installGem": "➡️  Installing Fastlane via RubyGems (gem install fastlane -NV)...",
+        "manual": {
+          "title": "ℹ️  Fastlane installation steps:",
+          "macos": "  • Install via RubyGems: sudo gem install fastlane -NV",
+          "linux": "  • Install via RubyGems: sudo gem install fastlane -NV",
+          "windows": "  • Install via Scoop or Chocolatey: choco install fastlane",
+          "generic": "  • Documentation: https://docs.fastlane.tools"
+        }
+      }
     }
   },
   "setup": {
-    "description": "Starts setup procedures",
-    "projectInfo": {
-      "description": "Configures the project name (PROJECT_NAME)",
-      "prompt": "Enter the project name",
-      "emptyError": "❌ No valid project name provided. Operation aborted.",
-      "success": "✅ PROJECT_NAME updated to {{name}}. File: {{path}}"
+    "info": {
+      "description": "Starts setup procedures",
+      "projectInfo": {
+        "description": "Configures the project name (PROJECT_NAME)",
+        "prompt": "Enter the project name"
+      }
+    },
+    "success": {
+      "projectInfoUpdated": "✅ PROJECT_NAME updated to {{name}}. File: {{path}}"
+    },
+    "error": {
+      "projectInfoEmpty": "❌ No valid project name provided. Operation aborted."
     }
   }
 }

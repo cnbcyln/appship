@@ -4,14 +4,27 @@ const { runFastlaneDoctor } = require('./fastlane');
 const { t } = require('../../i18n');
 
 function doctorCommand(program) {
-  program
+  const doctor = program
     .command('doctor')
-    .description(t('doctor.description'))
-    .option('--flutter', t('doctor.options.flutter'))
-    .option('--fastlane', t('doctor.options.fastlane'))
-    .action(async (options) => {
+    .description(t('doctor.info.description'))
+    .argument('[subcommand]')
+    .option('--flutter', t('doctor.info.options.flutter'))
+    .option('--fastlane', t('doctor.info.options.fastlane'));
+
+  doctor.action(async (subcommand, options) => {
+    if (subcommand) {
+      if (subcommand === 'help') {
+        console.log(t('doctor.info.helpDescription'));
+        doctor.outputHelp();
+        return;
+      }
+      console.log(chalk.red(t('doctor.error.unknownArgument', { value: subcommand })));
+      process.exitCode = 1;
+      return;
+    }
+
     try {
-      console.log(chalk.cyan.bold(`${t('doctor.intro')}\n`));
+      console.log(chalk.cyan.bold(`${t('doctor.info.intro')}\n`));
 
       const targets = resolveTargets(options);
       let overallSuccess = true;
@@ -24,14 +37,14 @@ function doctorCommand(program) {
         }
       }
 
-      const finalMessage = overallSuccess ? t('doctor.complete') : t('doctor.partial');
+      const finalMessage = overallSuccess ? t('doctor.success.complete') : t('doctor.warning.partial');
       const finalColor = overallSuccess ? chalk.green : chalk.yellow;
       console.log(finalColor.bold(`\n${finalMessage}`));
       if (!overallSuccess) {
         process.exitCode = 1;
       }
     } catch (error) {
-      console.log(chalk.red(`\n${t('doctor.unexpectedError', { message: error.message })}`));
+      console.log(chalk.red(`\n${t('doctor.error.unexpected', { message: error.message })}`));
       process.exitCode = 1;
     }
   });
