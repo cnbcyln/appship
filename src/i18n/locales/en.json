@@ -276,27 +276,51 @@
     "android": {
       "info": {
         "start": "Starting Android build ({value})...",
-        "success": "Android build completed successfully."
+        "success": "Android build completed successfully.",
+        "saved": "Saved Android artifact to {path}."
       },
       "error": {
         "missingSettings": "Android settings are incomplete: {fields}. Run '{command}' to update them.",
-        "buildFailed": "Android build failed. Please review the Flutter output."
+        "buildFailed": "Android build failed. Please review the Flutter output.",
+        "artifactMissing": "Android build finished but the output artifact was not found."
       }
     },
     "ios": {
       "info": {
         "start": "Starting iOS build...",
-        "success": "iOS build completed successfully."
+        "success": "iOS build completed successfully.",
+        "saved": "Saved iOS artifact to {path}."
       },
       "error": {
         "missingSettings": "iOS settings are incomplete: {fields}. Run '{command}' to update them.",
-        "buildFailed": "iOS build failed. Please review the Flutter output."
+        "buildFailed": "iOS build failed. Please review the Flutter output.",
+        "artifactMissing": "iOS build finished but the output artifact was not found."
       }
     },
     "common": {
       "error": {
         "outputDirMissing": "Build output directory is not configured. Run '{command}' to set it."
+      },
+      "info": {
+        "flutterClean": "Running flutter clean...",
+        "flutterPubGet": "Fetching packages..."
+      },
+      "error": {
+        "flutterCleanFailed": "'flutter clean' failed.",
+        "flutterPubGetFailed": "'flutter pub get' failed."
       }
+    },
+    "summary": {
+      "title": "Build Summary",
+      "app": "Application",
+      "platform": "Platform",
+      "version": "Version",
+      "artifact": "Artifact ({platform})",
+      "file": "File",
+      "size": "Size",
+      "path": "Location",
+      "openPrompt": "Open the output folder?",
+      "openFolderFailed": "Could not open output folder: {path}"
     },
     "version": {
       "menu": {

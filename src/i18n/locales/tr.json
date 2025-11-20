@@ -276,27 +276,51 @@
     "android": {
       "info": {
         "start": "Android build başlatılıyor ({value})...",
-        "success": "Android build işlemi tamamlandı."
+        "success": "Android build işlemi tamamlandı.",
+        "saved": "Android çıktısı {path} konumuna kaydedildi."
       },
       "error": {
         "missingSettings": "Android ayarları eksik: {fields}. Güncellemek için '{command}' komutunu çalıştırın.",
-        "buildFailed": "Android build başarısız oldu. Lütfen Flutter çıktısını kontrol edin."
+        "buildFailed": "Android build başarısız oldu. Lütfen Flutter çıktısını kontrol edin.",
+        "artifactMissing": "Android build tamamlandı fakat çıktı dosyası bulunamadı."
       }
     },
     "ios": {
       "info": {
         "start": "iOS build başlatılıyor...",
-        "success": "iOS build işlemi tamamlandı."
+        "success": "iOS build işlemi tamamlandı.",
+        "saved": "iOS çıktısı {path} konumuna kaydedildi."
       },
       "error": {
         "missingSettings": "iOS ayarları eksik: {fields}. Güncellemek için '{command}' komutunu çalıştırın.",
-        "buildFailed": "iOS build başarısız oldu. Lütfen Flutter çıktısını kontrol edin."
+        "buildFailed": "iOS build başarısız oldu. Lütfen Flutter çıktısını kontrol edin.",
+        "artifactMissing": "iOS build tamamlandı fakat çıktı dosyası bulunamadı."
       }
     },
     "common": {
       "error": {
         "outputDirMissing": "Build çıktı dizini tanımlı değil. '{command}' komutunu çalıştırarak yapılandırın."
+      },
+      "info": {
+        "flutterClean": "Flutter clean yapılıyor...",
+        "flutterPubGet": "Paketler yükleniyor..."
+      },
+      "error": {
+        "flutterCleanFailed": "'flutter clean' başarısız oldu.",
+        "flutterPubGetFailed": "'flutter pub get' başarısız oldu."
       }
+    },
+    "summary": {
+      "title": "Build Özeti",
+      "app": "Uygulama",
+      "platform": "Platform",
+      "version": "Versiyon",
+      "artifact": "Çıktı ({platform})",
+      "file": "Dosya",
+      "size": "Boyut",
+      "path": "Konum",
+      "openPrompt": "Çıktı klasörü açılsın mı?",
+      "openFolderFailed": "Çıktı klasörü açılamadı: {path}"
     },
     "version": {
       "menu": {
