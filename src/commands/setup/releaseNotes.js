@@ -1,24 +1,28 @@
 const chalk = require('chalk');
-const { input } = require('@inquirer/prompts');
-const { t } = require('../../i18n');
+const { t, i18n } = require('../../i18n');
 const { ensureConfigFile, readConfig, updateConfig, getConfigPath } = require('../../utils/config');
+const { promptRequiredInput } = require('../../utils/promptRequiredInput');
 
 async function handleReleaseNotes(options = {}) {
   ensureConfigFile();
   const currentConfig = readConfig();
 
+  const releaseNoteDefaults = buildReleaseNoteDefaults(currentConfig);
+
   const releaseNotesTr =
     options.releaseNotesTr ||
-    (await input({
+    (await promptRequiredInput({
       message: t('setup.info.releaseNotes.prompts.releaseNotesTr'),
-      default: currentConfig.RELEASE_NOTES_TR || '',
+      defaultValue: currentConfig.RELEASE_NOTES_TR || releaseNoteDefaults.tr,
+      errorMessage: t('setup.error.fieldRequired', { field: t('setup.summary.fields.releaseNotesTr') }),
     }));
 
   const releaseNotesEn =
     options.releaseNotesEn ||
-    (await input({
+    (await promptRequiredInput({
       message: t('setup.info.releaseNotes.prompts.releaseNotesEn'),
-      default: currentConfig.RELEASE_NOTES_EN || '',
+      defaultValue: currentConfig.RELEASE_NOTES_EN || releaseNoteDefaults.en,
+      errorMessage: t('setup.error.fieldRequired', { field: t('setup.summary.fields.releaseNotesEn') }),
     }));
 
   const normalizedTr = (releaseNotesTr || '').trim();
@@ -68,4 +72,12 @@ function formatReleaseNotePreview(trNotes, enNotes) {
   };
 
   return `TR: ${format(trNotes)} | EN: ${format(enNotes)}`;
+}
+
+function buildReleaseNoteDefaults(config = {}) {
+  const projectName = config.PROJECT_NAME || t('setup.summary.fields.projectName');
+  return {
+    tr: i18n.__mf({ phrase: 'setup.info.releaseNotes.defaults.tr', locale: 'tr' }, { project: projectName }),
+    en: i18n.__mf({ phrase: 'setup.info.releaseNotes.defaults.en', locale: 'en' }, { project: projectName }),
+  };
 }

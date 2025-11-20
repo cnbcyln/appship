@@ -32,7 +32,19 @@ async function runFlutterDoctor() {
       console.log(chalk.green(t('doctor.success.flutter.upToDate')));
     } else if (updateStatus.status === 'needs_update') {
       console.log(chalk.yellow(t('doctor.warning.flutter.updateAvailable')));
-      const wantsUpdate = await confirm(t('doctor.warning.flutter.updatePrompt'), { defaultValue: false });
+      if (updateStatus.latestVersion) {
+        console.log(
+          chalk.blue(
+            t('doctor.flutter.info.latestVersion', {
+              value: formatLatestAvailableFlutterVersion(updateStatus.latestVersion),
+            })
+          )
+        );
+      }
+      const wantsUpdate = await confirm({
+        message: t('doctor.warning.flutter.updatePrompt'),
+        default: false,
+      });
       if (!wantsUpdate) {
         console.log(chalk.yellow(t('doctor.warning.flutter.updateSkipped')));
       } else if (!updateFlutter()) {
@@ -131,18 +143,23 @@ function checkFlutterUpdateStatus() {
     return { status: 'unknown' };
   }
 
-  const combinedOutput = `${result.stdout}\n${result.stderr}`.toLowerCase();
+  const combinedOutput = `${result.stdout}\n${result.stderr}`;
+  const sanitizedOutput = stripAnsiSequences(combinedOutput);
+  const normalizedOutput = sanitizedOutput.toLowerCase();
 
-  if (combinedOutput.includes('already up to date') || combinedOutput.includes('already up-to-date')) {
+  if (normalizedOutput.includes('already up to date') || normalizedOutput.includes('already up-to-date')) {
     return { status: 'up_to_date' };
   }
 
-  if (combinedOutput.includes('new version of flutter') || combinedOutput.includes('a newer version of flutter')) {
-    return { status: 'needs_update' };
-  }
-
-  if (combinedOutput.includes('upgrading flutter')) {
-    return { status: 'needs_update' };
+  if (
+    normalizedOutput.includes('new version of flutter') ||
+    normalizedOutput.includes('a newer version of flutter') ||
+    normalizedOutput.includes('upgrading flutter')
+  ) {
+    return {
+      status: 'needs_update',
+      latestVersion: extractLatestFlutterVersion(sanitizedOutput),
+    };
   }
 
   return { status: 'unknown' };
@@ -170,6 +187,76 @@ function formatFlutterVersion(raw) {
   }
 
   return versionPart || channelPart || raw.trim();
+}
+
+function formatLatestAvailableFlutterVersion(info) {
+  if (!info) {
+    return t('common.unknownValue');
+  }
+
+  if (!info.version) {
+    return info.channel || info.revision ? [info.channel, info.revision].filter(Boolean).join(', ') : t('common.unknownValue');
+  }
+
+  if (info.channel) {
+    return info.revision ? `${info.version} (${info.channel}, ${info.revision})` : `${info.version} (${info.channel})`;
+  }
+
+  if (info.revision) {
+    return `${info.version} (${info.revision})`;
+  }
+
+  return info.version;
+}
+
+function extractLatestFlutterVersion(output) {
+  if (!output) {
+    return null;
+  }
+
+  const channelMatch = output.match(/A new version of Flutter is available on channel\s+([A-Za-z0-9_\-]+)/i);
+
+  const latestLineMatch = output.match(
+    /The latest version:\s*([0-9][0-9A-Za-z\.\+\-]*)[^\n]*?(?:\(revision\s+([A-Za-z0-9]+)\))?/i
+  );
+  if (latestLineMatch) {
+    return {
+      version: latestLineMatch[1],
+      revision: latestLineMatch[2] || null,
+      channel: channelMatch ? channelMatch[1] : null,
+    };
+  }
+
+  const upgradingLineMatch = output.match(
+    /Upgrading Flutter to\s+([0-9][0-9A-Za-z\.\+\-]*)[^\n]*?(?:in\s+channel\s+([A-Za-z0-9_\-]+))?/i
+  );
+  if (upgradingLineMatch) {
+    return {
+      version: upgradingLineMatch[1],
+      revision: null,
+      channel: upgradingLineMatch[2] || channelMatch || null,
+    };
+  }
+
+  const updateLineMatch = output.match(/To update to Flutter\s+([0-9][0-9A-Za-z\.\+\-]*)/i);
+  if (updateLineMatch) {
+    return {
+      version: updateLineMatch[1],
+      revision: null,
+      channel: channelMatch || null,
+    };
+  }
+
+  return channelMatch ? { version: null, revision: null, channel: channelMatch[1] } : null;
+}
+
+function stripAnsiSequences(value) {
+  if (!value) {
+    return '';
+  }
+
+  // Removes common ANSI color/control sequences that might be emitted by Flutter.
+  return value.replace(/\u001b\[[0-9;]*m/g, '');
 }
 
 module.exports = {

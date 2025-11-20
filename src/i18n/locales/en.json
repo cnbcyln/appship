@@ -3,7 +3,7 @@
     "unknownError": "unknown error",
     "unknownValue": "unknown",
     "errors": {
-      "excessArguments": "Too many arguments for '{{{command}}}'. Expected {{{expected}}} but received {{{received}}}."
+      "excessArguments": "Too many arguments for '{command}'. Expected {expected} but received {received}."
     }
   },
   "lang": {
@@ -16,10 +16,10 @@
       }
     },
     "success": {
-      "updated": "Language updated to {{{language}}}."
+      "updated": "Language updated to {language}."
     },
     "warning": {
-      "noChange": "Language already set to {{{language}}}."
+      "noChange": "Language already set to {language}."
     },
     "error": {
       "nonInteractive": "Cannot change language in a non-interactive environment."
@@ -56,7 +56,7 @@
         "updatePrompt": "Would you like to run 'flutter upgrade' to update Flutter?",
         "updateStatusUnknown": "⚠️  Unable to determine Flutter update status. Consider running 'flutter upgrade --verify-only' manually.",
         "updateSkipped": "⏭ Flutter update was skipped by the user.",
-        "verifyFailure": "⚠️  Unable to validate Flutter updates ({{{message}}}). Manual verification recommended."
+        "verifyFailure": "⚠️  Unable to validate Flutter updates ({message}). Manual verification recommended."
       },
       "fastlane": {
         "updateAvailable": "⚠️  A new Fastlane version is available.",
@@ -70,13 +70,13 @@
       }
     },
     "error": {
-      "unexpected": "💥 Unexpected error: {{{message}}}",
-      "unknownArgument": "Unknown argument '{{{value}}}'. Run 'appship doctor help' for usage.",
+      "unexpected": "💥 Unexpected error: {message}",
+      "unknownArgument": "Unknown argument '{value}'. Run 'appship doctor help' for usage.",
       "flutter": {
         "notInstalled": "❌ Flutter is not installed.",
         "updateFailure": "❌ Flutter update failed. Please run 'flutter upgrade' manually.",
         "installFailure": "❌ Flutter installation via Homebrew failed.",
-        "doctorFailure": "❌ Flutter Doctor failed: {{{message}}}. Please run it manually.",
+        "doctorFailure": "❌ Flutter Doctor failed: {message}. Please run it manually.",
         "doctorIssues": "❌ Flutter Doctor reported issues. Review the output above and resolve missing requirements."
       },
       "fastlane": {
@@ -89,7 +89,8 @@
     "flutter": {
       "info": {
         "title": "==> Flutter",
-        "version": "📦 Version: {{{value}}}",
+        "version": "📦 Version: {value}",
+        "latestVersion": "🆕 Latest available Flutter version: {value}",
         "updateCheck": "🔄 Checking Flutter updates (flutter upgrade)...",
         "installBrew": "➡️  Installing Flutter via Homebrew (brew install --cask flutter)...",
         "manual": {
@@ -106,9 +107,9 @@
     "fastlane": {
       "info": {
         "title": "==> Fastlane",
-        "version": "📦 Version: fastlane {{{value}}}",
+        "version": "📦 Version: fastlane {value}",
         "updatePrompt": "Would you like to update Fastlane now?",
-        "updatePromptCommand": "Would you like to run '{{{command}}}' to update Fastlane?",
+        "updatePromptCommand": "Would you like to run '{command}' to update Fastlane?",
         "updateBrew": "🔄 Updating Fastlane via Homebrew (brew upgrade fastlane)...",
         "updateFastlane": "🔄 Checking Fastlane updates (fastlane update_fastlane)...",
         "installBrew": "➡️  Installing Fastlane via Homebrew (brew install fastlane)...",
@@ -167,7 +168,7 @@
         },
         "prompts": {
           "googlePlayServiceAccountKeyPath": "Enter the Google Play service account key path",
-          "keepExistingKeyPath": "Use the existing Google Play service account key path ({{{path}}})?",
+          "keepExistingKeyPath": "Use the existing Google Play service account key path ({path})?",
           "googlePlayServiceAccountKeyPathSearch": "Select or search for the Google Play service account key JSON",
           "googlePlayPackageName": "Enter the Google Play package name"
         },
@@ -186,12 +187,13 @@
           "appleBundleId": "Apple Bundle Identifier"
         },
         "prompts": {
-          "appleApiKeyPath": "Enter the Apple API key path",
-          "appleApiKeyPathSearch": "Select or search for the Apple API key (.p8) file",
-          "appleApiKeyId": "Enter the Apple API Key ID",
-          "appleApiIssuerId": "Enter the Apple API Issuer ID",
-          "appleTeamId": "Enter the Apple Team ID",
-          "appleBundleId": "Enter the Apple Bundle Identifier"
+          "appleApiKeyPathManual": "Enter the Apple API key (.p8) file path",
+          "appleApiKeyPathSearch": "Search or select the Apple API key (.p8) file",
+          "keepExistingKeyPath": "Use the existing Apple API key path ({path})?",
+          "appleApiKeyId": "Enter Apple API Key ID",
+          "appleApiIssuerId": "Enter Apple API Issuer ID",
+          "appleTeamId": "Enter Apple Team ID",
+          "appleBundleId": "Enter Apple Bundle Identifier"
         },
         "choices": {
           "enterCustomPath": "Enter a custom path"
@@ -207,6 +209,10 @@
         "prompts": {
           "releaseNotesTr": "Enter release notes (TR)",
           "releaseNotesEn": "Enter release notes (EN)"
+        },
+        "defaults": {
+          "tr": "- {project} için performans iyileştirmeleri ve hata düzeltmeleri yapıldı.",
+          "en": "- {project} includes improvements and bug fixes."
         }
       },
       "buildOutputDir": {
@@ -216,7 +222,14 @@
           "buildOutputDir": "Build output directory path"
         },
         "prompts": {
-          "buildOutputDir": "Enter the build output directory"
+          "buildOutputDirManual": "Enter the build output directory",
+          "buildOutputDirSearch": "Search or select the build output directory",
+          "useDefaultOutputDir": "Use the default output directory ({path})?",
+          "useConfiguredOutputDir": "Use the configured build output directory ({path})?",
+          "useExistingOutputDir": "Recreate the missing build output directory ({path})?"
+        },
+        "choices": {
+          "enterCustomDir": "Enter a custom directory"
         }
       },
       "full": {
@@ -236,7 +249,8 @@
       "androidSettingsMissingFields": "❌ Both the service account path and package name must be provided.",
       "iosSettingsMissingFields": "❌ All Apple API credentials must be provided.",
       "releaseNotesMissingFields": "❌ Both Turkish and English release notes must be provided.",
-      "buildOutputDirMissing": "❌ Build output directory must be provided."
+      "buildOutputDirMissing": "❌ Build output directory must be provided.",
+      "fieldRequired": "{{field}} cannot be empty."
     }
   }
 }

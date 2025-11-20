@@ -21,9 +21,9 @@ function initI18n() {
 
 function t(key, replacements) {
   if (replacements) {
-    return i18n.__(key, replacements);
+    return i18n.__mf(key, replacements);
   }
-  return i18n.__(key);
+  return i18n.__mf(key);
 }
 
 function setLocale(language) {

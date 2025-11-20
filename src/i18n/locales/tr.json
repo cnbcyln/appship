@@ -3,7 +3,7 @@
     "unknownError": "bilinmeyen hata",
     "unknownValue": "bilinmiyor",
     "errors": {
-      "excessArguments": "'{{{command}}}' komutu için çok fazla argüman verildi. Beklenen: {{{expected}}}, alınan: {{{received}}}."
+      "excessArguments": "'{command}' komutu için çok fazla argüman verildi. Beklenen: {expected}, alınan: {received}."
     }
   },
   "lang": {
@@ -16,10 +16,10 @@
       }
     },
     "success": {
-      "updated": "Dil {{{language}}} olarak güncellendi."
+      "updated": "Dil {language} olarak güncellendi."
     },
     "warning": {
-      "noChange": "Dil zaten {{{language}}} olarak ayarlı."
+      "noChange": "Dil zaten {language} olarak ayarlı."
     },
     "error": {
       "nonInteractive": "Etkileşimli olmayan ortamda dil değiştirilemez."
@@ -56,7 +56,7 @@
         "updatePrompt": "Flutter'ı güncellemek için 'flutter upgrade' komutunu çalıştırmak ister misiniz?",
         "updateStatusUnknown": "⚠️  Flutter güncelleme durumu tespit edilemedi. 'flutter upgrade --verify-only' komutunu manuel çalıştırabilirsiniz.",
         "updateSkipped": "⏭ Flutter güncellemesi kullanıcı tarafından atlandı.",
-        "verifyFailure": "⚠️  Flutter güncellemesi doğrulanamadı ({{{message}}}). Manuel kontrol önerilir."
+        "verifyFailure": "⚠️  Flutter güncellemesi doğrulanamadı ({message}). Manuel kontrol önerilir."
       },
       "fastlane": {
         "updateAvailable": "⚠️  Fastlane için yeni bir sürüm mevcut.",
@@ -70,13 +70,13 @@
       }
     },
     "error": {
-      "unexpected": "💥 Beklenmeyen hata: {{{message}}}",
-      "unknownArgument": "Bilinmeyen argüman '{{{value}}}'. Kullanım için 'appship doctor help' çalıştırın.",
+      "unexpected": "💥 Beklenmeyen hata: {message}",
+      "unknownArgument": "Bilinmeyen argüman '{value}'. Kullanım için 'appship doctor help' çalıştırın.",
       "flutter": {
         "notInstalled": "❌ Flutter yüklü değil.",
         "updateFailure": "❌ Flutter güncellemesi başarısız oldu. Lütfen 'flutter upgrade' komutunu manuel çalıştırın.",
         "installFailure": "❌ Homebrew Flutter kurulumu başarısız oldu.",
-        "doctorFailure": "❌ Flutter Doctor çalıştırılırken hata oluştu: {{{message}}}. Lütfen manuel kontrol edin.",
+        "doctorFailure": "❌ Flutter Doctor çalıştırılırken hata oluştu: {message}. Lütfen manuel kontrol edin.",
         "doctorIssues": "❌ Flutter Doctor bazı kontrollerde başarısız. Yukarıdaki raporu inceleyip gereksinimleri tamamlayın."
       },
       "fastlane": {
@@ -89,7 +89,8 @@
     "flutter": {
       "info": {
         "title": "==> Flutter",
-        "version": "📦 Sürüm: {{{value}}}",
+        "version": "📦 Sürüm: {value}",
+        "latestVersion": "🆕 Kullanılabilir en yeni Flutter sürümü: {value}",
         "updateCheck": "🔄 Flutter güncellemesi kontrol ediliyor (flutter upgrade)...",
         "installBrew": "➡️  Homebrew ile Flutter kurulumu başlatılıyor (brew install --cask flutter)...",
         "manual": {
@@ -106,9 +107,9 @@
     "fastlane": {
       "info": {
         "title": "==> Fastlane",
-        "version": "📦 Sürüm: fastlane {{{value}}}",
+        "version": "📦 Sürüm: fastlane {value}",
         "updatePrompt": "Fastlane'i şimdi güncellemek ister misiniz?",
-        "updatePromptCommand": "Fastlane'i güncellemek için '{{{command}}}' komutunu çalıştırmak ister misiniz?",
+        "updatePromptCommand": "Fastlane'i güncellemek için '{command}' komutunu çalıştırmak ister misiniz?",
         "updateBrew": "🔄 Fastlane Homebrew üzerinden güncelleniyor (brew upgrade fastlane)...",
         "updateFastlane": "🔄 Fastlane güncellemesi kontrol ediliyor (fastlane update_fastlane)...",
         "installBrew": "➡️  Homebrew ile Fastlane kurulumu başlatılıyor (brew install fastlane)...",
@@ -167,8 +168,8 @@
         },
         "prompts": {
           "googlePlayServiceAccountKeyPath": "Google Play servis hesabı anahtar yolunu girin",
-          "keepExistingKeyPath": "Mevcut Google Play servis hesabı anahtar yolu kullanılsın mı ({{{path}}})?",
-          "googlePlayServiceAccountKeyPathSearch": "Google Play servis hesabı JSON dosyasını arayın veya seçin",
+          "keepExistingKeyPath": "Mevcut Google Play servis hesabı anahtar yolu kullanılsın mı ({path})?",
+          "googlePlayServiceAccountKeyPathSearch": "Google Play servis hesabı (.json) dosyasını arayarak seçin",
           "googlePlayPackageName": "Google Play paket adını girin"
         },
         "choices": {
@@ -186,12 +187,13 @@
           "appleBundleId": "Apple Bundle Identifier"
         },
         "prompts": {
-          "appleApiKeyPath": "Apple API anahtar yolunu girin",
+          "appleApiKeyPathManual": "Apple API anahtar (.p8) dosya yolunu girin",
           "appleApiKeyPathSearch": "Apple API anahtar (.p8) dosyasını arayarak seçin",
-          "appleApiKeyId": "Apple API Key ID değerini girin",
-          "appleApiIssuerId": "Apple API Issuer ID değerini girin",
-          "appleTeamId": "Apple Team ID değerini girin",
-          "appleBundleId": "Apple Bundle Identifier değerini girin"
+          "keepExistingKeyPath": "Mevcut Apple API anahtar yolu kullanılsın mı ({path})?",
+          "appleApiKeyId": "Apple API Key ID girin",
+          "appleApiIssuerId": "Apple API Issuer ID girin",
+          "appleTeamId": "Apple Team ID girin",
+          "appleBundleId": "Apple Bundle Identifier girin"
         },
         "choices": {
           "enterCustomPath": "Özel yol gir"
@@ -207,6 +209,10 @@
         "prompts": {
           "releaseNotesTr": "Sürüm notlarını yazın (TR)",
           "releaseNotesEn": "Sürüm notlarını yazın (EN)"
+        },
+        "defaults": {
+          "tr": "- {project} için performans iyileştirmeleri ve hata düzeltmeleri yapıldı.",
+          "en": "- {project} includes improvements and bug fixes."
         }
       },
       "buildOutputDir": {
@@ -216,7 +222,14 @@
           "buildOutputDir": "Build çıktı dizini"
         },
         "prompts": {
-          "buildOutputDir": "Build çıktı dizinini girin"
+          "buildOutputDirManual": "Build çıktı dizinini girin",
+          "buildOutputDirSearch": "Build çıktı dizinini arayarak seçin",
+          "useDefaultOutputDir": "Varsayılan 'output' dizini kullanılsın mı ({path})?",
+          "useConfiguredOutputDir": "Tanımlı build çıktı dizini kullanılsın mı ({path})?",
+          "useExistingOutputDir": "Eksik build çıktı dizini oluşturulsun mu ({path})?"
+        },
+        "choices": {
+          "enterCustomDir": "Özel dizin gir"
         }
       },
       "full": {
@@ -232,11 +245,12 @@
       "fullCompleted": "✅ Tüm kurulum adımları tamamlandı."
     },
     "error": {
-      "projectInfoEmpty": "❌ Geçerli bir proje adı girilmedi. İşlem iptal edildi.",
+      "projectInfoEmpty": "❌ Geçerli bir proje adı girilmedi.",
       "androidSettingsMissingFields": "❌ Servis hesabı yolu ve paket adı birlikte girilmelidir.",
       "iosSettingsMissingFields": "❌ Apple API bilgileri eksiksiz girilmelidir.",
       "releaseNotesMissingFields": "❌ Türkçe ve İngilizce sürüm notları birlikte girilmelidir.",
-      "buildOutputDirMissing": "❌ Build çıktı dizini girilmelidir."
+      "buildOutputDirMissing": "❌ Build çıktı dizini girilmelidir.",
+      "fieldRequired": "{{field}} boş bırakılamaz."
     }
   }
 }

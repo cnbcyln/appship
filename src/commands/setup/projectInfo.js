@@ -1,28 +1,22 @@
 const chalk = require('chalk');
 const { ensureConfigFile, updateConfig, readConfig } = require('../../utils/config');
-const { input } = require('@inquirer/prompts');
 const { t } = require('../../i18n');
+const { promptRequiredInput } = require('../../utils/promptRequiredInput');
 
 async function handleProjectInfo(options = {}) {
   ensureConfigFile();
   const currentConfig = readConfig();
-  const existingName = currentConfig.PROJECT_NAME;
-
-  const projectName =
-    options.name && options.name.trim().length > 0
-      ? options.name.trim()
-      : await input({
-          message: t('setup.info.projectInfo.prompt'),
-          default: existingName,
-        });
+  const existingName = currentConfig.PROJECT_NAME || '';
+  let projectName = options.name && options.name.trim();
+  if (!projectName) {
+    projectName = await promptRequiredInput({
+      message: t('setup.info.projectInfo.prompt'),
+      defaultValue: existingName,
+      errorMessage: t('setup.error.projectInfoEmpty'),
+    });
+  }
 
   const normalizedName = (projectName || '').trim();
-
-  if (!normalizedName) {
-    console.log(chalk.red(t('setup.error.projectInfoEmpty')));
-    process.exitCode = 1;
-    return;
-  }
 
   updateConfig({ PROJECT_NAME: normalizedName });
 

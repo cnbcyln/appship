@@ -1,28 +1,24 @@
 const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
-const { input, search, confirm } = require('@inquirer/prompts');
+const { search, confirm } = require('@inquirer/prompts');
 const { updateConfig, readConfig, ensureConfigFile } = require('../../utils/config');
 const { t } = require('../../i18n');
+const { promptRequiredInput } = require('../../utils/promptRequiredInput');
 
 const MANUAL_CHOICE = '__manual__';
 
 async function handleAndroidSettings(options = {}) {
   ensureConfigFile();
+
   const currentConfig = readConfig();
-
   const defaults = findDefaultAndroidSettings();
-  const manualChoiceLabel = t('setup.info.androidSettings.choices.enterCustomPath');
-
   let serviceAccountPath = options.googlePlayServiceAccountKeyPath;
   const existingConfigPath = currentConfig.GOOGLE_PLAY_SERVICE_ACCOUNT_KEY_PATH || '';
 
   if (!serviceAccountPath && process.stdin.isTTY) {
     if (existingConfigPath) {
-      const keepExisting = await confirm({
-        message: t('setup.info.androidSettings.prompts.keepExistingKeyPath', { path: existingConfigPath }),
-        default: true,
-      });
+      const keepExisting = await confirm({ message: t('setup.info.androidSettings.prompts.keepExistingKeyPath', { path: existingConfigPath }), default: true });
 
       if (keepExisting) {
         serviceAccountPath = existingConfigPath;
@@ -30,30 +26,35 @@ async function handleAndroidSettings(options = {}) {
     }
 
     if (!serviceAccountPath) {
-      serviceAccountPath = await promptForKeyPath(
-        defaults.jsonFiles,
-        manualChoiceLabel,
-        existingConfigPath || defaults.keyPath || ''
-      );
+      serviceAccountPath = await promptForKeyPath(defaults.jsonFiles, t('setup.info.androidSettings.choices.enterCustomPath'), existingConfigPath || defaults.keyPath || '');
     }
   }
 
   if (!serviceAccountPath) {
-    if (!process.stdin.isTTY) {
-      console.log(chalk.yellow(t('setup.info.androidSettings.prompts.googlePlayServiceAccountKeyPath')));
-    }
-    serviceAccountPath = await input({
+    serviceAccountPath = await promptRequiredInput({
       message: t('setup.info.androidSettings.prompts.googlePlayServiceAccountKeyPath'),
-      default: existingConfigPath || defaults.keyPath || '',
+      defaultValue: existingConfigPath || defaults.keyPath || '',
+      errorMessage: t('setup.error.fieldRequired', {
+        field: t('setup.summary.fields.googlePlayServiceAccountKeyPath'),
+      })
     });
   }
 
-  const packageName =
-    options.googlePlayPackageName ||
-    (await input({
+  const detectedPackageName = defaults.packageName || '';
+  let packageName = (options.googlePlayPackageName || '').trim();
+  if (!packageName) {
+    packageName = currentConfig.GOOGLE_PLAY_PACKAGE_NAME || detectedPackageName || '';
+  }
+
+  if (process.stdin.isTTY && !options.googlePlayPackageName) {
+    packageName = await promptRequiredInput({
       message: t('setup.info.androidSettings.prompts.googlePlayPackageName'),
-      default: currentConfig.GOOGLE_PLAY_PACKAGE_NAME || defaults.packageName || '',
-    }));
+      defaultValue: packageName,
+      errorMessage: t('setup.error.fieldRequired', {
+        field: t('setup.summary.fields.googlePlayPackageName'),
+      }),
+    });
+  }
 
   const normalizedKeyPath = (serviceAccountPath || '').trim();
   let normalizedPackageName = (packageName || '').trim();
@@ -97,10 +98,9 @@ function registerAndroidSettingsCommand(setup) {
 function findDefaultAndroidSettings() {
   const projectRoot = process.cwd();
   const androidDir = path.join(projectRoot, 'android');
-  const iosDir = path.join(projectRoot, 'ios');
 
   const defaultPaths = {
-    jsonFiles: collectJsonFiles(projectRoot, [projectRoot, androidDir, iosDir]),
+    jsonFiles: collectJsonFiles(projectRoot, [projectRoot, androidDir]),
   };
 
   // Service account key path heuristics
@@ -122,7 +122,7 @@ function findDefaultAndroidSettings() {
   if (fs.existsSync(gradleFile)) {
     try {
       const content = fs.readFileSync(gradleFile, 'utf8');
-      const applicationIdMatch = content.match(/applicationId\s+["']([\w.]+)["']/);
+      const applicationIdMatch = content.match(/applicationId\s*=\s*["']([\w.]+)["']/);
       if (applicationIdMatch) {
         defaultPaths.packageName = applicationIdMatch[1];
       }
@@ -131,20 +131,8 @@ function findDefaultAndroidSettings() {
     }
   }
 
-  // Info plist for iOS (sometimes package name equals bundle id)
-  if (!defaultPaths.packageName && fs.existsSync(iosDir)) {
-    const runnerPlist = path.join(iosDir, 'Runner', 'Info.plist');
-    if (fs.existsSync(runnerPlist)) {
-      try {
-        const content = fs.readFileSync(runnerPlist, 'utf8');
-        const bundIdMatch = content.match(/<key>CFBundleIdentifier<\/key>\s*<string>([^<]+)<\/string>/);
-        if (bundIdMatch) {
-          defaultPaths.packageName = bundIdMatch[1];
-        }
-      } catch (error) {
-        // ignore
-      }
-    }
+  if (defaultPaths.packageName && defaultPaths.packageName.includes('$')) {
+    defaultPaths.packageName = null;
   }
 
   if (!defaultPaths.keyPath && defaultPaths.jsonFiles.length > 0) {
@@ -244,7 +232,7 @@ async function promptForKeyPath(jsonFiles, manualLabel, fallbackDefault) {
     const selected = await search({
       message: t('setup.info.androidSettings.prompts.googlePlayServiceAccountKeyPathSearch'),
       source: createJsonSearchSource(jsonFiles, manualLabel),
-      pageSize: 7,
+      pageSize: 7
     });
 
     if (selected && selected !== MANUAL_CHOICE) {
@@ -254,7 +242,7 @@ async function promptForKeyPath(jsonFiles, manualLabel, fallbackDefault) {
 
   return input({
     message: t('setup.info.androidSettings.prompts.googlePlayServiceAccountKeyPath'),
-    default: fallbackDefault,
+    default: fallbackDefault
   });
 }
 

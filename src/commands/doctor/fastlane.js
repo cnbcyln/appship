@@ -42,7 +42,10 @@ async function runFastlaneDoctor() {
     const question = updateStatus.command
       ? t('doctor.fastlane.info.updatePromptCommand', { command: updateStatus.command })
       : t('doctor.fastlane.info.updatePrompt');
-    const wantsUpdate = await confirm(question, { defaultValue: false });
+    const wantsUpdate = await confirm({
+      message: question,
+      default: false,
+    });
     if (!wantsUpdate) {
       console.log(chalk.yellow(t('doctor.warning.fastlane.updateSkipped')));
       return true;
