@@ -76,6 +76,7 @@ function registerBuildCommand(program) {
       version: finalVersion || versionInfo.version || t('common.unknownValue'),
       build: finalBuild || versionInfo.build || '0',
     };
+    const artifactBaseName = buildArtifactBaseName({ config, summary });
 
     if (!runPreBuildSteps()) {
       process.exitCode = 1;
@@ -88,7 +89,12 @@ function registerBuildCommand(program) {
 
     if (shouldRunAndroid) {
       try {
-        const result = await runAndroidBuild({ format: androidFormat || 'apk', config, summary });
+        const result = await runAndroidBuild({
+          format: androidFormat || 'apk',
+          config,
+          summary,
+          artifactBaseName,
+        });
         artifacts.push({ platform: 'android', ...result });
       } catch (error) {
         console.log(chalk.red(error.message));
@@ -99,7 +105,7 @@ function registerBuildCommand(program) {
 
     if (shouldRunIos) {
       try {
-        const result = await runIosBuild({ config, summary });
+        const result = await runIosBuild({ config, summary, artifactBaseName });
         artifacts.push({ platform: 'ios', ...result });
       } catch (error) {
         console.log(chalk.red(error.message));
@@ -163,7 +169,7 @@ async function promptOpenOutputFolder(config, platform) {
 
   const open = await confirm({
     message: t('build.summary.openPrompt'),
-    default: true,
+    default: false
   });
 
   if (!open) {
@@ -184,4 +190,17 @@ function formatBytes(bytes) {
   const i = Math.min(Math.floor(Math.log(value) / Math.log(1024)), units.length - 1);
   const num = value / Math.pow(1024, i);
   return `${num.toFixed(num >= 10 || i === 0 ? 0 : 1)} ${units[i]}`;
+}
+
+function buildArtifactBaseName({ config, summary }) {
+  const project = (config.PROJECT_NAME || 'app').toLowerCase();
+  const buildNumber = (summary.build || '0').toString().toLowerCase();
+  const timestamp = getTimestamp();
+  return `${project}_${buildNumber}_${timestamp}`;
+}
+
+function getTimestamp() {
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${pad(now.getDate())}${pad(now.getMonth() + 1)}${now.getFullYear()}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
 }

@@ -36,7 +36,7 @@ function validateAndroidConfig(config = {}) {
   };
 }
 
-async function runAndroidBuild({ format = 'apk', config = {}, summary = {} }) {
+async function runAndroidBuild({ format = 'apk', config = {}, summary = {}, artifactBaseName }) {
   const validation = validateAndroidConfig(config);
 
   if (validation.missingSettings.length > 0 || validation.fileIssues.length > 0) {
@@ -73,7 +73,10 @@ async function runAndroidBuild({ format = 'apk', config = {}, summary = {} }) {
   }
 
   const destinationDir = ensurePlatformOutputDir(validation.outputDir, 'android');
-  const destinationPath = path.join(destinationDir, buildOutputFileName(config, 'android', summary, artifactPath, format));
+  const destinationPath = path.join(
+    destinationDir,
+    buildOutputFileName({ config, summary, artifactPath, format, artifactBaseName })
+  );
   copyArtifact(artifactPath, destinationPath);
 
   console.log(chalk.green(t('build.android.info.success')));
@@ -89,12 +92,17 @@ module.exports = {
   runAndroidBuild,
 };
 
-function buildOutputFileName(config, platform, summary = {}, artifactPath, format = 'apk') {
+function buildOutputFileName({ config, summary = {}, artifactPath, format = 'apk', artifactBaseName }) {
+  const baseName = artifactBaseName || buildDefaultBaseName(config, summary);
+  const ext = resolveExtension(artifactPath, format);
+  return `${baseName}${ext}`;
+}
+
+function buildDefaultBaseName(config, summary = {}) {
   const project = (config.PROJECT_NAME || 'app').toLowerCase();
   const buildNumber = (summary.build || '0').toString().toLowerCase();
   const timestamp = getTimestamp();
-  const ext = resolveExtension(artifactPath, format);
-  return `${project}_${buildNumber}_${timestamp}${ext}`;
+  return `${project}_${buildNumber}_${timestamp}`;
 }
 
 function findAndroidArtifact(format) {

@@ -39,7 +39,7 @@ function validateIosConfig(config = {}) {
   };
 }
 
-async function runIosBuild({ config = {}, summary = {} }) {
+async function runIosBuild({ config = {}, summary = {}, artifactBaseName }) {
   const validation = validateIosConfig(config);
 
   if (validation.missingSettings.length > 0 || validation.fileIssues.length > 0) {
@@ -73,7 +73,10 @@ async function runIosBuild({ config = {}, summary = {} }) {
   }
 
   const destinationDir = ensurePlatformOutputDir(validation.outputDir, 'ios');
-  const destinationPath = path.join(destinationDir, buildOutputFileName(config, 'ios', summary, artifactPath));
+  const destinationPath = path.join(
+    destinationDir,
+    buildOutputFileName({ config, summary, artifactPath, artifactBaseName })
+  );
   copyArtifact(artifactPath, destinationPath);
 
   console.log(chalk.green(t('build.ios.info.success')));
@@ -88,11 +91,17 @@ module.exports = {
   runIosBuild,
 };
 
-function buildOutputFileName(config, platform, summary = {}) {
+function buildOutputFileName({ config, summary = {}, artifactPath, artifactBaseName }) {
+  const baseName = artifactBaseName || buildDefaultBaseName(config, summary);
+  const ext = artifactPath ? path.extname(artifactPath) || '.ipa' : '.ipa';
+  return `${baseName}${ext}`;
+}
+
+function buildDefaultBaseName(config, summary = {}) {
   const project = (config.PROJECT_NAME || 'app').toLowerCase();
   const buildNumber = (summary.build || '0').toString().toLowerCase();
   const timestamp = getTimestamp();
-  return `${project}_${buildNumber}_${timestamp}.ipa`;
+  return `${project}_${buildNumber}_${timestamp}`;
 }
 
 function findIosArtifact() {
