@@ -298,14 +298,12 @@
       }
     },
     "common": {
-      "error": {
-        "outputDirMissing": "Build çıktı dizini tanımlı değil. '{command}' komutunu çalıştırarak yapılandırın."
-      },
       "info": {
         "flutterClean": "Flutter clean yapılıyor...",
         "flutterPubGet": "Paketler yükleniyor..."
       },
       "error": {
+        "outputDirMissing": "Build çıktı dizini tanımlı değil. '{command}' komutunu çalıştırarak yapılandırın.",
         "flutterCleanFailed": "'flutter clean' başarısız oldu.",
         "flutterPubGetFailed": "'flutter pub get' başarısız oldu."
       }

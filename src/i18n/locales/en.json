@@ -298,14 +298,12 @@
       }
     },
     "common": {
-      "error": {
-        "outputDirMissing": "Build output directory is not configured. Run '{command}' to set it."
-      },
       "info": {
         "flutterClean": "Running flutter clean...",
         "flutterPubGet": "Fetching packages..."
       },
       "error": {
+        "outputDirMissing": "Build output directory is not configured. Run '{command}' to set it.",
         "flutterCleanFailed": "'flutter clean' failed.",
         "flutterPubGetFailed": "'flutter pub get' failed."
       }
