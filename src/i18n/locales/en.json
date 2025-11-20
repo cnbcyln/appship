@@ -250,7 +250,7 @@
       "iosSettingsMissingFields": "❌ All Apple API credentials must be provided.",
       "releaseNotesMissingFields": "❌ Both Turkish and English release notes must be provided.",
       "buildOutputDirMissing": "❌ Build output directory must be provided.",
-      "fieldRequired": "{{field}} cannot be empty."
+      "fieldRequired": "{field} cannot be empty."
     }
   }
 }

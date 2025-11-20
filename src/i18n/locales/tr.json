@@ -224,7 +224,7 @@
         "prompts": {
           "buildOutputDirManual": "Build çıktı dizinini girin",
           "buildOutputDirSearch": "Build çıktı dizinini arayarak seçin",
-          "useDefaultOutputDir": "Varsayılan 'output' dizini kullanılsın mı ({path})?",
+          "useDefaultOutputDir": "Varsayılan 'appship-output' dizini kullanılsın mı ({path})?",
           "useConfiguredOutputDir": "Tanımlı build çıktı dizini kullanılsın mı ({path})?",
           "useExistingOutputDir": "Eksik build çıktı dizini oluşturulsun mu ({path})?"
         },
@@ -250,7 +250,7 @@
       "iosSettingsMissingFields": "❌ Apple API bilgileri eksiksiz girilmelidir.",
       "releaseNotesMissingFields": "❌ Türkçe ve İngilizce sürüm notları birlikte girilmelidir.",
       "buildOutputDirMissing": "❌ Build çıktı dizini girilmelidir.",
-      "fieldRequired": "{{field}} boş bırakılamaz."
+      "fieldRequired": "{field} boş bırakılamaz."
     }
   }
 }

@@ -10,5 +10,5 @@
   "APPLE_BUNDLE_ID": "com.figarobilisim.workpark",
   "RELEASE_NOTES_TR": "- WorkPark için performans iyileştirmeleri ve hata düzeltmeleri yapıldı.",
   "RELEASE_NOTES_EN": "- WorkPark includes improvements and bug fixes.",
-  "BUILD_OUTPUT_DIR": "/Users/canbahadirceylan/Desktop/CBCTech/appship/src"
+  "BUILD_OUTPUT_DIR": "/Users/canbahadirceylan/Desktop/CBCTech/appship/appship-output"
 }

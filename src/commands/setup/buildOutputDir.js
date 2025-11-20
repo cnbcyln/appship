@@ -146,7 +146,7 @@ function createDirectorySearchSource(directories, manualLabel) {
 
 function findDefaultBuildOutputDir() {
   const projectRoot = process.cwd();
-  const preferredOutputDir = path.join(projectRoot, 'output');
+  const preferredOutputDir = path.join(projectRoot, 'appship-output');
   const knownCandidates = [
     path.join(projectRoot, 'build', 'app', 'outputs'),
     path.join(projectRoot, 'build', 'outputs'),
