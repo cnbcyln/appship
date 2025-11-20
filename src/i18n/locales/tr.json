@@ -252,5 +252,91 @@
       "buildOutputDirMissing": "❌ Build çıktı dizini girilmelidir.",
       "fieldRequired": "{field} boş bırakılamaz."
     }
+  },
+  "build": {
+    "title": "Build",
+    "description": "Flutter projesini build eder",
+    "platform": {
+      "menu": {
+        "prompt": "Build alınacak platformu seçin",
+        "android": "Android",
+        "ios": "iOS",
+        "both": "Android + iOS"
+      },
+      "selection": "Seçilen platform: {value}"
+    },
+    "format": {
+      "menu": {
+        "prompt": "Android build formatını seçin",
+        "apk": "APK",
+        "aab": "AAB"
+      },
+      "selection": "Seçilen format: {value}"
+    },
+    "android": {
+      "info": {
+        "start": "Android build başlatılıyor ({value})...",
+        "success": "Android build işlemi tamamlandı."
+      },
+      "error": {
+        "missingSettings": "Android ayarları eksik: {fields}. Güncellemek için '{command}' komutunu çalıştırın.",
+        "buildFailed": "Android build başarısız oldu. Lütfen Flutter çıktısını kontrol edin."
+      }
+    },
+    "ios": {
+      "info": {
+        "start": "iOS build başlatılıyor...",
+        "success": "iOS build işlemi tamamlandı."
+      },
+      "error": {
+        "missingSettings": "iOS ayarları eksik: {fields}. Güncellemek için '{command}' komutunu çalıştırın.",
+        "buildFailed": "iOS build başarısız oldu. Lütfen Flutter çıktısını kontrol edin."
+      }
+    },
+    "common": {
+      "error": {
+        "outputDirMissing": "Build çıktı dizini tanımlı değil. '{command}' komutunu çalıştırarak yapılandırın."
+      }
+    },
+    "version": {
+      "menu": {
+        "prompt": "Versiyon yükseltmek istiyor musunuz? (Mevcut: {version})",
+        "bump": "Evet, versiyon yükselt",
+        "keep": "Hayır, mevcut versiyonu kullan (Versiyon: {version} - Build: {build})"
+      },
+      "selection": {
+        "bump": "Versiyon yükseltme talep edildi.",
+        "keep": "Mevcut versiyon {version} (build {build}) kullanılacak."
+      },
+      "warning": {
+        "missingPubspec": "⚠️ pubspec.yaml okunamadı. Versiyon bilgisi mevcut değil.",
+        "noVersion": "⚠️ pubspec.yaml içinde bir versiyon alanı bulunamadı."
+      },
+      "bump": {
+        "menu": {
+          "prompt": "Versiyon artış şeklini seçin",
+          "major": "Major (Versiyon: {current} -> {next}, Build: {currentBuild} -> {nextBuild})",
+          "minor": "Minor (Versiyon: {current} -> {next}, Build: {currentBuild} -> {nextBuild})",
+          "patch": "Patch (Versiyon: {current} -> {next}, Build: {currentBuild} -> {nextBuild})",
+          "manual": "Manuel giriş"
+        },
+        "applied": "Versiyon {version} (build {build}) olarak güncellendi."
+      },
+      "manual": {
+        "versionPrompt": "Yeni versiyonu girin (mevcut: {current})",
+        "buildPrompt": "Yeni build numarasını girin (mevcut: {current})",
+        "errorInvalidFormat": "Versiyon X.Y.Z formatında olmalıdır (örn. 1.2.3).",
+        "errorHigherVersion": "Yeni versiyon {current} değerinden büyük olmalıdır.",
+        "errorInvalidBuild": "Build numarası pozitif bir sayı olmalıdır.",
+        "errorHigherBuild": "Build numarası {current} değerinden büyük olmalıdır."
+      },
+      "error": {
+        "updateFailed": "Versiyon güncellenemedi: {message}.",
+        "missingPubspec": "pubspec.yaml bulunamadığı için güncelleme yapılamadı."
+      }
+    },
+    "error": {
+      "nonInteractive": "Build komutu etkileşimli terminal gerektirir."
+    }
   }
 }

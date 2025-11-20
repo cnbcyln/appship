@@ -252,5 +252,91 @@
       "buildOutputDirMissing": "❌ Build output directory must be provided.",
       "fieldRequired": "{field} cannot be empty."
     }
+  },
+  "build": {
+    "title": "Build",
+    "description": "Builds the Flutter project",
+    "platform": {
+      "menu": {
+        "prompt": "Select the platform to build",
+        "android": "Android",
+        "ios": "iOS",
+        "both": "Android + iOS"
+      },
+      "selection": "Selected platform: {value}"
+    },
+    "format": {
+      "menu": {
+        "prompt": "Select the Android build format",
+        "apk": "APK",
+        "aab": "AAB"
+      },
+      "selection": "Selected format: {value}"
+    },
+    "android": {
+      "info": {
+        "start": "Starting Android build ({value})...",
+        "success": "Android build completed successfully."
+      },
+      "error": {
+        "missingSettings": "Android settings are incomplete: {fields}. Run '{command}' to update them.",
+        "buildFailed": "Android build failed. Please review the Flutter output."
+      }
+    },
+    "ios": {
+      "info": {
+        "start": "Starting iOS build...",
+        "success": "iOS build completed successfully."
+      },
+      "error": {
+        "missingSettings": "iOS settings are incomplete: {fields}. Run '{command}' to update them.",
+        "buildFailed": "iOS build failed. Please review the Flutter output."
+      }
+    },
+    "common": {
+      "error": {
+        "outputDirMissing": "Build output directory is not configured. Run '{command}' to set it."
+      }
+    },
+    "version": {
+      "menu": {
+        "prompt": "Do you want to bump the version? (Current: {version})",
+        "bump": "Yes, bump the version",
+        "keep": "No, keep current version (Version: {version} - Build: {build})"
+      },
+      "selection": {
+        "bump": "Version bump requested.",
+        "keep": "Using existing version {version} (build {build})."
+      },
+      "warning": {
+        "missingPubspec": "⚠️ pubspec.yaml could not be read. Version information is unavailable.",
+        "noVersion": "⚠️ pubspec.yaml does not contain a version field."
+      },
+      "bump": {
+        "menu": {
+          "prompt": "Select how to bump the version",
+          "major": "Major (Version: {current} -> {next}, Build: {currentBuild} -> {nextBuild})",
+          "minor": "Minor (Version: {current} -> {next}, Build: {currentBuild} -> {nextBuild})",
+          "patch": "Patch (Version: {current} -> {next}, Build: {currentBuild} -> {nextBuild})",
+          "manual": "Manual entry"
+        },
+        "applied": "Version updated to {version} (build {build})."
+      },
+      "manual": {
+        "versionPrompt": "Enter the new version (current: {current})",
+        "buildPrompt": "Enter the new build number (current: {current})",
+        "errorInvalidFormat": "Version must follow the format X.Y.Z (e.g., 1.2.3).",
+        "errorHigherVersion": "New version must be higher than {current}.",
+        "errorInvalidBuild": "Build number must be a positive integer.",
+        "errorHigherBuild": "Build number must be greater than {current}."
+      },
+      "error": {
+        "updateFailed": "Version update failed: {message}.",
+        "missingPubspec": "pubspec.yaml could not be updated because it was not found."
+      }
+    },
+    "error": {
+      "nonInteractive": "Build command requires an interactive terminal."
+    }
   }
 }

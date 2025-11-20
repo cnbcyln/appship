@@ -6,6 +6,7 @@ const pkg = require('./package.json');
 const setup = require('./src/commands/setup/index.js');
 const doctor = require('./src/commands/doctor/index.js');
 const lang = require('./src/commands/lang/index.js');
+const build = require('./src/commands/build/index.js');
 const { initI18n, t } = require('./src/i18n');
 
 const program = new Command();
@@ -68,5 +69,6 @@ function parseExcessArguments(message) {
 setup(program);
 doctor(program);
 lang(program);
+build(program);
 
 program.parse(process.argv);
