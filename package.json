@@ -1,6 +1,6 @@
 {
   "name": "@cbctech/appship",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "AppShip CLI - mobile build & deploy otomasyon aracı",
   "keywords": [
     "cli",
