@@ -280,7 +280,6 @@
         "saved": "Android çıktısı {path} konumuna kaydedildi."
       },
       "error": {
-        "missingSettings": "Android ayarları eksik: {fields}. Güncellemek için '{command}' komutunu çalıştırın.",
         "buildFailed": "Android build başarısız oldu. Lütfen Flutter çıktısını kontrol edin.",
         "artifactMissing": "Android build tamamlandı fakat çıktı dosyası bulunamadı."
       }
@@ -292,7 +291,6 @@
         "saved": "iOS çıktısı {path} konumuna kaydedildi."
       },
       "error": {
-        "missingSettings": "iOS ayarları eksik: {fields}. Güncellemek için '{command}' komutunu çalıştırın.",
         "buildFailed": "iOS build başarısız oldu. Lütfen Flutter çıktısını kontrol edin.",
         "artifactMissing": "iOS build tamamlandı fakat çıktı dosyası bulunamadı."
       }
@@ -303,7 +301,7 @@
         "flutterPubGet": "Paketler yükleniyor..."
       },
       "error": {
-        "outputDirMissing": "Build çıktı dizini tanımlı değil. '{command}' komutunu çalıştırarak yapılandırın.",
+        "outputDirMissing": "Build çıktı dizini tanımlı değil.",
         "flutterCleanFailed": "'flutter clean' başarısız oldu.",
         "flutterPubGetFailed": "'flutter pub get' başarısız oldu."
       }
@@ -359,6 +357,105 @@
     },
     "error": {
       "nonInteractive": "Build komutu etkileşimli terminal gerektirir."
+    }
+  },
+  "setupFix": {
+    "prompts": {
+      "projectInfo": "Proje bilgileri eksik. Proje Bilgileri kurulumunu yeniden çalıştırmak ister misiniz?",
+      "androidSettings": "Android ayarları eksik. Android kurulumunu yeniden çalıştırmak ister misiniz?",
+      "iosSettings": "iOS ayarları eksik. iOS kurulumunu yeniden çalıştırmak ister misiniz?",
+      "releaseNotes": "Sürüm notları eksik. Sürüm Notları kurulumunu yeniden çalıştırmak ister misiniz?",
+      "buildOutputDir": "Build çıktı dizini eksik. Çıktı dizini kurulumunu yeniden çalıştırmak ister misiniz?"
+    },
+    "cancelled": "Gerekli kurulum reddedildiği için işlem iptal edildi.",
+    "failed": "Gerekli kurulumlar hâlâ tamamlanmadı. Lütfen setup adımlarını manuel tamamlayıp tekrar deneyin."
+  },
+  "deploy": {
+    "description": "Build çıktılarının deploy işlemini yapar",
+    "platform": {
+      "menu": {
+        "prompt": "Deploy yapılacak platformu seçin",
+        "android": "Android",
+        "ios": "iOS",
+        "both": "Android + iOS"
+      },
+      "selection": "Seçilen platform: {value}"
+    },
+    "output": {
+      "menu": {
+        "prompt": "{platform} için deploy edilecek çıktıyı seçin"
+      },
+      "selected": "{platform} için seçilen çıktı: {file}",
+      "label": "{file} ({size}) - Build: {build} | Tarih: {date} | Saat: {time}"
+    },
+    "error": {
+      "nonInteractive": "Deploy komutu etkileşimli terminal gerektirir.",
+      "outputDirMissing": "Build çıktı dizini tanımlı değil.",
+      "noArtifacts": "{platform} için hiç çıktı bulunamadı. Lütfen önce build alın."
+    },
+    "target": {
+      "menu": {
+        "prompt": "Hangi hedefe deploy yapmak istiyorsunuz? ({platform})"
+      },
+      "android": {
+        "internal": "Internal Testing (internal)",
+        "alpha": "Alpha Testing (alpha)",
+        "beta": "Beta Testing (beta)",
+        "production": "Production (production)"
+      },
+      "ios": {
+        "testflight": "TestFlight (Beta Testing)",
+        "appstore": "App Store Review (Production)"
+      },
+      "selected": "{platform} için seçilen hedef: {target}",
+      "cancelled": "Deploy işlemi kullanıcı tarafından iptal edildi.",
+      "warning": {
+        "android": {
+          "title": "⚠️  UYARI: Production'a gönderiyorsunuz!",
+          "body": "Bu sürüm Google'ın incelemesine gönderilecek ve onaylandıktan sonra yayınlanacak.",
+          "question": "Production'a göndermek istediğinizden emin misiniz?"
+        },
+        "ios": {
+          "title": "⚠️  UYARI: App Store Review'e gönderiyorsunuz!",
+          "body": "Bu sürüm Apple'ın incelemesine gönderilecek ve onaylandıktan sonra yayınlanacak.",
+          "question": "App Store Review'e göndermek istediğinizden emin misiniz?"
+        }
+      }
+    },
+    "run": {
+      "android": {
+        "start": "Android deploy başlatılıyor.. (Hedef: {track})",
+        "success": "Android deploy tamamlandı. (Hedef: {track})",
+        "errors": {
+          "artifactMissing": "Android çıktısı bulunamadı veya geçersiz.",
+          "missingServiceAccountKey": "Google Play servis hesabı anahtar yolu eksik veya geçersiz.",
+          "missingPackageName": "Google Play paket adı eksik.",
+          "unsupportedExtension": "Desteklenmeyen Android çıktı uzantısı: {ext}",
+          "uploadFailed": "Android deploy başarısız. Lütfen fastlane çıktısını kontrol edin.",
+          "uploadFailedGeneric": "Android deploy başarısız: {message}",
+          "versionCodeUsed": "Android deploy başarısız: {code} build numarası daha önce kullanılmış! Build numarasını artırıp tekrar deneyin."
+        }
+      },
+      "ios": {
+        "start": {
+          "appstore": "iOS deploy başlatılıyor.. (Hedef: App Store Review)",
+          "testflight": "iOS deploy başlatılıyor.. (Hedef: TestFlight)"
+        },
+        "success": {
+          "appstore": "iOS deploy tamamlandı. (Hedef: App Store Review)",
+          "testflight": "iOS deploy tamamlandı. (Hedef: TestFlight)"
+        },
+        "errors": {
+          "artifactMissing": "iOS çıktısı bulunamadı veya geçersiz.",
+          "missingApiKeyPath": "Apple API anahtar (.p8) yolu eksik veya geçersiz.",
+          "missingApiKeyId": "Apple API Key ID eksik.",
+          "missingApiIssuerId": "Apple API Issuer ID eksik.",
+          "missingBundleId": "Apple Bundle ID eksik.",
+          "unsupportedExtension": "Desteklenmeyen iOS çıktı uzantısı: {ext}",
+          "uploadFailedAppstore": "iOS deploy App Store Review için başarısız oldu. Lütfen fastlane çıktısını kontrol edin.",
+          "uploadFailedTestflight": "iOS deploy TestFlight için başarısız oldu. Lütfen fastlane çıktısını kontrol edin."
+        }
+      }
     }
   }
 }

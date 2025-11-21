@@ -280,7 +280,6 @@
         "saved": "Saved Android artifact to {path}."
       },
       "error": {
-        "missingSettings": "Android settings are incomplete: {fields}. Run '{command}' to update them.",
         "buildFailed": "Android build failed. Please review the Flutter output.",
         "artifactMissing": "Android build finished but the output artifact was not found."
       }
@@ -292,7 +291,6 @@
         "saved": "Saved iOS artifact to {path}."
       },
       "error": {
-        "missingSettings": "iOS settings are incomplete: {fields}. Run '{command}' to update them.",
         "buildFailed": "iOS build failed. Please review the Flutter output.",
         "artifactMissing": "iOS build finished but the output artifact was not found."
       }
@@ -303,7 +301,7 @@
         "flutterPubGet": "Fetching packages..."
       },
       "error": {
-        "outputDirMissing": "Build output directory is not configured. Run '{command}' to set it.",
+        "outputDirMissing": "Build output directory is not configured.",
         "flutterCleanFailed": "'flutter clean' failed.",
         "flutterPubGetFailed": "'flutter pub get' failed."
       }
@@ -359,6 +357,105 @@
     },
     "error": {
       "nonInteractive": "Build command requires an interactive terminal."
+    }
+  },
+  "setupFix": {
+    "prompts": {
+      "projectInfo": "Project info is incomplete. Would you like to rerun the Project Information setup?",
+      "androidSettings": "Android settings are incomplete. Would you like to rerun the Android setup?",
+      "iosSettings": "iOS settings are incomplete. Would you like to rerun the iOS setup?",
+      "releaseNotes": "Release notes are incomplete. Would you like to rerun the Release Notes setup?",
+      "buildOutputDir": "Build output directory is missing. Would you like to rerun the Output Directory setup?"
+    },
+    "cancelled": "Operation cancelled because required setup was declined.",
+    "failed": "Required setup is still incomplete. Please rerun the setup steps manually and try again."
+  },
+  "deploy": {
+    "description": "Deploys build artifacts",
+    "platform": {
+      "menu": {
+        "prompt": "Select the platform to deploy",
+        "android": "Android",
+        "ios": "iOS",
+        "both": "Android + iOS"
+      },
+      "selection": "Selected platform: {value}"
+    },
+    "output": {
+      "menu": {
+        "prompt": "Select the artifact to deploy for {platform}"
+      },
+      "selected": "Selected artifact for {platform}: {file}",
+      "label": "{file} ({size}) - Build: {build} | Date: {date} | Time: {time}"
+    },
+    "error": {
+      "nonInteractive": "Deploy command requires an interactive terminal.",
+      "outputDirMissing": "Build output directory is not configured.",
+      "noArtifacts": "No artifacts found for {platform}. Please run a build first."
+    },
+    "target": {
+      "menu": {
+        "prompt": "Which target do you want to deploy to? ({platform})"
+      },
+      "android": {
+        "internal": "Internal Testing (internal)",
+        "alpha": "Alpha Testing (alpha)",
+        "beta": "Beta Testing (beta)",
+        "production": "Production (production)"
+      },
+      "ios": {
+        "testflight": "TestFlight (Beta Testing)",
+        "appstore": "App Store Review (Production)"
+      },
+      "selected": "Selected deploy target for {platform}: {target}",
+      "cancelled": "Deployment cancelled by user.",
+      "warning": {
+        "android": {
+          "title": "⚠️  WARNING: You are deploying to Production!",
+          "body": "This release will be sent to Google's review and published after approval.",
+          "question": "Are you sure you want to deploy to Production?"
+        },
+        "ios": {
+          "title": "⚠️  WARNING: You are deploying to App Store Review!",
+          "body": "This release will be sent to Apple's review and published after approval.",
+          "question": "Are you sure you want to deploy to App Store Review?"
+        }
+      }
+    },
+    "run": {
+      "android": {
+        "start": "Starting Android deploy.. (Target: {track})...",
+        "success": "Android deploy completed. (Target: {track})",
+        "errors": {
+          "artifactMissing": "Android artifact path is missing or not found.",
+          "missingServiceAccountKey": "Google Play service account key path is missing or invalid.",
+          "missingPackageName": "Google Play package name is missing.",
+          "unsupportedExtension": "Unsupported Android artifact extension: {ext}",
+          "uploadFailed": "Android deploy failed. Please check fastlane output.",
+          "uploadFailedGeneric": "Android deploy failed: {message}",
+          "versionCodeUsed": "Android deploy failed: build number {code} is already used. Please bump the build number and retry."
+        }
+      },
+      "ios": {
+        "start": {
+          "appstore": "Starting iOS deploy.. (Target: App Store Review)",
+          "testflight": "Starting iOS deploy.. (Target: TestFlight)"
+        },
+        "success": {
+          "appstore": "iOS deploy completed. (Target: App Store Review)",
+          "testflight": "iOS deploy completed. (Target: TestFlight)"
+        },
+        "errors": {
+          "artifactMissing": "iOS artifact path is missing or not found.",
+          "missingApiKeyPath": "Apple API key (.p8) path is missing or invalid.",
+          "missingApiKeyId": "Apple API Key ID is missing.",
+          "missingApiIssuerId": "Apple API Issuer ID is missing.",
+          "missingBundleId": "Apple Bundle ID is missing.",
+          "unsupportedExtension": "Unsupported iOS artifact extension: {ext}",
+          "uploadFailedAppstore": "iOS deploy to App Store Review failed. Please check fastlane output.",
+          "uploadFailedTestflight": "iOS deploy to TestFlight failed. Please check fastlane output."
+        }
+      }
     }
   }
 }

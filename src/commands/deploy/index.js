@@ -25,14 +25,8 @@ function registerDeployCommand(program) {
     ensureConfigFile();
     let config = readConfig();
 
-    const baseOutputDir = (config.BUILD_OUTPUT_DIR || '').trim();
-    if (!baseOutputDir) {
-      console.log(chalk.red(t('setupFix.failed')));
-      process.exitCode = 1;
-      return;
-    }
-
     const selections = {};
+    let baseOutputDir = (config.BUILD_OUTPUT_DIR || '').trim();
     if (platform === 'both') {
       const androidResult = await handlePlatformSelection({ platform: 'android', baseOutputDir });
       if (!androidResult) return;

@@ -72,6 +72,14 @@ function registerBuildCommand(program) {
       );
     }
 
+    const ensuredConfig = await ensureSetupPrerequisites({ platform });
+    if (!ensuredConfig) {
+      console.log(chalk.yellow(t('setupFix.cancelled')));
+      process.exitCode = 1;
+      return;
+    }
+    config = ensuredConfig;
+
     const summary = {
       project: config.PROJECT_NAME || 'app',
       platform,
