@@ -13,8 +13,7 @@ AppShip; Flutter projeleri için build ve deploy süreçlerini tek komutla otoma
 
 ### Kurulum
 ```bash
-npm install
-npm link         # CLI'ı global komut olarak kullanmak için
+npm i -g @cbctech/appship   # CLI'yı global komut olarak kur
 ```
 
 Gereksinimler:
@@ -74,8 +73,7 @@ AppShip is a CLI that automates Flutter build and deployment with fastlane. It s
 
 ### Setup
 ```bash
-npm install
-npm link         # register CLI globally as `appship`
+npm i -g @cbctech/appship   # install CLI globally
 ```
 
 Requirements:
