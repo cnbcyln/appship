@@ -471,5 +471,18 @@
       "platform": "Platform",
       "target": "Hedef"
     }
+  },
+  "buildDeploy": {
+    "description": "Uygulamayı tek seferde derle ve dağıt",
+    "error": {
+      "nonInteractive": "Build-deploy komutu etkileşimsiz ortamda çalıştırılamaz."
+    },
+    "info": {
+      "start": "Build & deploy başlatılıyor...",
+      "buildPhase": "Build aşaması çalıştırılıyor...",
+      "buildComplete": "Build aşaması tamamlandı.",
+      "deployPhase": "Deploy aşaması başlatılıyor...",
+      "complete": "Build & deploy tamamlandı."
+    }
   }
 }

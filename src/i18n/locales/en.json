@@ -471,5 +471,18 @@
       "platform": "Platform",
       "target": "Target"
     }
+  },
+  "buildDeploy": {
+    "description": "Build and deploy the app in a single run",
+    "error": {
+      "nonInteractive": "Build-deploy command requires an interactive terminal."
+    },
+    "info": {
+      "start": "Starting build & deploy...",
+      "buildPhase": "Running build phase...",
+      "buildComplete": "Build phase completed.",
+      "deployPhase": "Running deploy phase...",
+      "complete": "Build & deploy finished."
+    }
   }
 }
