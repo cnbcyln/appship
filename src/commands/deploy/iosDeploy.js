@@ -51,6 +51,10 @@ async function runIosDeploy({ artifact, target, config }) {
   }
 
   const apiKeyPath = path.resolve(config.APPLE_API_KEY_PATH);
+  const apiKeyExt = path.extname(apiKeyPath || '').toLowerCase();
+  if (apiKeyExt !== '.p8') {
+    throw new Error(t('deploy.run.ios.errors.invalidApiKeyFormat'));
+  }
   const appId = config.APPLE_BUNDLE_ID;
   const env = {
     ...process.env,
@@ -78,10 +82,11 @@ async function runIosDeploy({ artifact, target, config }) {
       'true',
     ];
 
-    const result = runCommand('fastlane', args, { inherit: true, env });
-    if (!result.success) {
-      throw new Error(t('deploy.run.ios.errors.uploadFailedAppstore'));
-    }
+  const result = runCommand('fastlane', args, { inherit: true, env });
+  if (!result.success) {
+    const mapped = mapIosFailure(result, 'appstore');
+    throw new Error(mapped);
+  }
 
     console.log(chalk.green(t('deploy.run.ios.success.appstore')));
     return { platform: 'ios', target: 'appstore', artifact: artifact.path };
@@ -108,7 +113,8 @@ async function runIosDeploy({ artifact, target, config }) {
 
   const result = runCommand('fastlane', args, { inherit: true, env });
   if (!result.success) {
-    throw new Error(t('deploy.run.ios.errors.uploadFailedTestflight'));
+    const mapped = mapIosFailure(result, 'testflight');
+    throw new Error(mapped);
   }
 
   console.log(chalk.green(t('deploy.run.ios.success.testflight')));
@@ -118,3 +124,17 @@ async function runIosDeploy({ artifact, target, config }) {
 module.exports = {
   runIosDeploy,
 };
+
+function mapIosFailure(result, target) {
+  const output = `${result.stdout || ''}\n${result.stderr || ''}`;
+  const normalized = output.toLowerCase();
+
+  if (normalized.includes('json::parsererror') || output.includes('-----BEGIN')) {
+    return t('deploy.run.ios.errors.invalidApiKeyFormat');
+  }
+
+  if (target === 'appstore') {
+    return t('deploy.run.ios.errors.uploadFailedAppstore');
+  }
+  return t('deploy.run.ios.errors.uploadFailedTestflight');
+}

@@ -450,6 +450,7 @@
         "errors": {
           "artifactMissing": "iOS çıktısı bulunamadı veya geçersiz.",
           "missingApiKeyPath": "Apple API anahtar (.p8) yolu eksik veya geçersiz.",
+          "invalidApiKeyFormat": "Apple API anahtarı .p8 dosyası olmalıdır (App Store Connect özel anahtarı).",
           "missingApiKeyId": "Apple API Key ID eksik.",
           "missingApiIssuerId": "Apple API Issuer ID eksik.",
           "missingBundleId": "Apple Bundle ID eksik.",

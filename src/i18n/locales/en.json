@@ -450,6 +450,7 @@
         "errors": {
           "artifactMissing": "iOS artifact path is missing or not found.",
           "missingApiKeyPath": "Apple API key (.p8) path is missing or invalid.",
+          "invalidApiKeyFormat": "Apple API key must be a .p8 file (App Store Connect API private key).",
           "missingApiKeyId": "Apple API Key ID is missing.",
           "missingApiIssuerId": "Apple API Issuer ID is missing.",
           "missingBundleId": "Apple Bundle ID is missing.",
