@@ -1,4 +1,5 @@
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const chalk = require('chalk');
 const { runCommand } = require('../../utils/process');
@@ -41,7 +42,7 @@ function resolveTrack(targetKey) {
   }
 }
 
-async function runAndroidDeploy({ artifact, target, config }) {
+async function runAndroidDeploy({ artifact, target, config, releaseNotes }) {
   const ensured = await ensureSetupPrerequisites({ platform: 'android' });
   if (!ensured) {
     throw new Error(t('setupFix.cancelled'));
@@ -64,6 +65,11 @@ async function runAndroidDeploy({ artifact, target, config }) {
     '--package_name',
     config.GOOGLE_PLAY_PACKAGE_NAME,
   ];
+
+  const metadataPath = createAndroidReleaseNotesMetadata(releaseNotes);
+  if (metadataPath) {
+    args.push('--metadata_path', metadataPath);
+  }
 
   if (ext === '.aab') {
     args.push('--aab', artifact.path);
@@ -114,3 +120,31 @@ function mapAndroidFailure(result) {
 module.exports = {
   runAndroidDeploy,
 };
+
+function createAndroidReleaseNotesMetadata(releaseNotes) {
+  if (!releaseNotes) {
+    return null;
+  }
+
+  const entries = [];
+  const en = (releaseNotes.en || '').trim();
+  const tr = (releaseNotes.tr || '').trim();
+  if (en) entries.push({ code: 'en-US', value: en });
+  if (tr) entries.push({ code: 'tr-TR', value: tr });
+
+  if (!entries.length) {
+    return null;
+  }
+
+  const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'appship_play_notes_'));
+  const metaRoot = path.join(tmpRoot, 'metadata', 'android');
+
+  entries.forEach((entry) => {
+    const changelogDir = path.join(metaRoot, entry.code, 'changelogs');
+    fs.mkdirSync(changelogDir, { recursive: true });
+    const targetFile = path.join(changelogDir, 'default.txt');
+    fs.writeFileSync(targetFile, entry.value, 'utf8');
+  });
+
+  return path.join(tmpRoot, 'metadata');
+}

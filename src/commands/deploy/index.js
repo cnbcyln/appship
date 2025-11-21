@@ -1,5 +1,5 @@
 const chalk = require('chalk');
-const { confirm } = require('@inquirer/prompts');
+const { confirm, input } = require('@inquirer/prompts');
 const { t } = require('../../i18n');
 const { ensureConfigFile, readConfig } = require('../../utils/config');
 const { promptPlatformSelection, getPlatformLabelKey } = require('./platformSelection');
@@ -122,7 +122,8 @@ async function handlePlatformSelection({ platform, baseOutputDir }) {
   }
 
   console.log(chalk.green(t('deploy.target.selected', { platform: t(getPlatformLabelKey(platform)), target: target.label })));
-  return { artifact, target };
+  const releaseNotes = await promptReleaseNotes();
+  return { artifact, target, releaseNotes };
 }
 
 async function deployPlatform({ platform, selections, config }) {
@@ -137,6 +138,7 @@ async function deployPlatform({ platform, selections, config }) {
         artifact: selection.artifact,
         target: selection.target,
         config,
+        releaseNotes: selection.releaseNotes,
       });
       return {
         platform: 'android',
@@ -150,6 +152,7 @@ async function deployPlatform({ platform, selections, config }) {
         artifact: selection.artifact,
         target: selection.target,
         config,
+        releaseNotes: selection.releaseNotes,
       });
       return {
         platform: 'ios',
@@ -164,6 +167,7 @@ async function deployPlatform({ platform, selections, config }) {
         error,
         selection,
         config,
+        releaseNotes: selection.releaseNotes,
       });
       if (handled && handled.path) {
         return {
@@ -220,7 +224,7 @@ function formatTime(value) {
   return `${hour}:${minute}:${second}`;
 }
 
-async function handleAndroidVersionRetry({ error, selection, config }) {
+async function handleAndroidVersionRetry({ error, selection, config, releaseNotes }) {
   const versionCode = error.versionCode || t('common.unknownValue');
   const wantBump = await confirm({
     message: t('deploy.retry.versionUsed.prompt', { code: versionCode }),
@@ -281,6 +285,7 @@ async function handleAndroidVersionRetry({ error, selection, config }) {
       artifact: { path: buildResult.path, name: buildResult.path.split('/').pop() },
       target: selection.target,
       config,
+      releaseNotes,
     });
 
     return { path: buildResult.path };
@@ -338,4 +343,35 @@ function getItemSize(target) {
     return 0;
   }
   return 0;
+}
+
+async function promptReleaseNotes() {
+  console.log(chalk.blue(t('deploy.releaseNotes.info')));
+
+  ensureConfigFile();
+  const cfg = readConfig();
+  const defaultTr = (cfg.RELEASE_NOTES_TR || '').trim();
+  const defaultEn = (cfg.RELEASE_NOTES_EN || '').trim();
+
+  const noteTr = await input({
+    message: t('deploy.releaseNotes.prompt.tr'),
+    default: defaultTr,
+  });
+
+  const noteEn = await input({
+    message: t('deploy.releaseNotes.prompt.en'),
+    default: defaultEn,
+  });
+
+  const trimmedEn = (noteEn || '').trim();
+  const trimmedTr = (noteTr || '').trim();
+
+  if (!trimmedEn && !trimmedTr) {
+    return null;
+  }
+
+  return {
+    tr: trimmedTr || defaultTr,
+    en: trimmedEn || defaultEn,
+  };
 }

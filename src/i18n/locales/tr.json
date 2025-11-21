@@ -470,6 +470,13 @@
       "title": "Deploy Özeti",
       "platform": "Platform",
       "target": "Hedef"
+    },
+    "releaseNotes": {
+      "info": "Aşağıdaki sürüm notları sadece bu deploy için kullanılacak. Varsayılanı değiştirmek istersen setup ile güncelle.",
+      "prompt": {
+        "tr": "Bu deploy için sürüm notu (TR)",
+        "en": "Bu deploy için sürüm notu (EN)"
+      }
     }
   },
   "buildDeploy": {
@@ -483,6 +490,13 @@
       "buildComplete": "Build aşaması tamamlandı.",
       "deployPhase": "Deploy aşaması başlatılıyor...",
       "complete": "Build & deploy tamamlandı."
+    },
+    "releaseNotes": {
+      "info": "Aşağıdaki sürüm notları sadece bu build & deploy çalıştırması için kullanılacak. Varsayılanı değiştirmek istersen setup ile güncelle.",
+      "prompt": {
+        "tr": "Bu çalıştırma için sürüm notu (TR)",
+        "en": "Bu çalıştırma için sürüm notu (EN)"
+      }
     }
   }
 }

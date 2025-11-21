@@ -47,7 +47,7 @@ function isAppStore(targetKey) {
   return targetKey === 'appstore';
 }
 
-async function runIosDeploy({ artifact, target, config }) {
+async function runIosDeploy({ artifact, target, config, releaseNotes }) {
   const ensured = await ensureSetupPrerequisites({ platform: 'ios' });
   if (!ensured) {
     throw new Error(t('setupFix.cancelled'));
@@ -98,7 +98,7 @@ async function runIosDeploy({ artifact, target, config }) {
     return { platform: 'ios', target: 'appstore', artifact: artifact.path };
   }
 
-  const changelog = buildChangelog(config);
+  const changelog = buildChangelog(config, releaseNotes);
   const args = [
     'pilot',
     'upload',
@@ -186,10 +186,14 @@ function prepareApiKeyFile(config) {
   return targetPath;
 }
 
-function buildChangelog(config = {}) {
+function buildChangelog(config = {}, overrideReleaseNotes) {
+  const overrideEn = (overrideReleaseNotes?.en || '').trim();
+  const overrideTr = (overrideReleaseNotes?.tr || '').trim();
   const en = (config.RELEASE_NOTES_EN || '').trim();
   const tr = (config.RELEASE_NOTES_TR || '').trim();
 
+  if (overrideEn) return overrideEn;
+  if (overrideTr) return overrideTr;
   if (en) return en;
   if (tr) return tr;
   return '';

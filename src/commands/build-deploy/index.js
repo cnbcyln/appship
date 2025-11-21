@@ -1,7 +1,7 @@
 const fs = require('fs');
 const chalk = require('chalk');
 const path = require('path');
-const { confirm } = require('@inquirer/prompts');
+const { confirm, input } = require('@inquirer/prompts');
 const { t } = require('../../i18n');
 const { ensureConfigFile, readConfig } = require('../../utils/config');
 const { runCommand } = require('../../utils/process');
@@ -75,6 +75,8 @@ function registerBuildDeployCommand(program) {
           )
         );
       }
+
+      const releaseNotes = await promptReleaseNotes(config, { shouldRunIos, shouldRunAndroid });
 
       const ensuredConfig = await ensureSetupPrerequisites({ platform });
       if (!ensuredConfig) {
@@ -151,6 +153,7 @@ function registerBuildDeployCommand(program) {
               artifact: { path: artifact.path, name: path.basename(artifact.path) },
               target,
               config,
+              releaseNotes,
             });
             deployResults.push({
               platform: 'android',
@@ -164,6 +167,7 @@ function registerBuildDeployCommand(program) {
               artifact: { path: artifact.path, name: path.basename(artifact.path) },
               target,
               config,
+              releaseNotes,
             });
             deployResults.push({
               platform: 'ios',
@@ -179,6 +183,7 @@ function registerBuildDeployCommand(program) {
               target,
               config,
               format: artifact.format || 'apk',
+              releaseNotes,
             });
             if (handled && handled.path) {
               deployResults.push({
@@ -314,7 +319,7 @@ function getItemSize(target) {
   return 0;
 }
 
-async function handleAndroidVersionRetry({ error, target, config, format }) {
+async function handleAndroidVersionRetry({ error, target, config, format, releaseNotes }) {
   const versionCode = error.versionCode || t('common.unknownValue');
   const wantBump = await confirm({
     message: t('deploy.retry.versionUsed.prompt', { code: versionCode }),
@@ -375,6 +380,7 @@ async function handleAndroidVersionRetry({ error, target, config, format }) {
       artifact: { path: buildResult.path, name: path.basename(buildResult.path) },
       target,
       config,
+      releaseNotes,
     });
 
     return { path: deployResult.artifact, sizeBytes: getItemSize(deployResult.artifact) };
@@ -394,4 +400,37 @@ function showRebuildSummary(summary, buildResult) {
   console.log(chalk.yellow(`- ${t('build.summary.file')}: ${path.basename(buildResult.path)}`));
   console.log(chalk.yellow(`- ${t('build.summary.size')}: ${formatBytes(buildResult.sizeBytes)}`));
   console.log(chalk.yellow(`- ${t('build.summary.path')}: ${buildResult.path}`));
+}
+
+async function promptReleaseNotes(config, { shouldRunIos, shouldRunAndroid }) {
+  if (!shouldRunIos && !shouldRunAndroid) {
+    return null;
+  }
+
+  console.log(chalk.blue(t('buildDeploy.releaseNotes.info')));
+
+  const defaultTr = (config.RELEASE_NOTES_TR || '').trim();
+  const defaultEn = (config.RELEASE_NOTES_EN || '').trim();
+
+  const noteTr = await input({
+    message: t('buildDeploy.releaseNotes.prompt.tr'),
+    default: defaultTr,
+  });
+
+  const noteEn = await input({
+    message: t('buildDeploy.releaseNotes.prompt.en'),
+    default: defaultEn,
+  });
+
+  const trimmedEn = (noteEn || '').trim();
+  const trimmedTr = (noteTr || '').trim();
+
+  if (!trimmedEn && !trimmedTr) {
+    return null;
+  }
+
+  return {
+    tr: trimmedTr || defaultTr,
+    en: trimmedEn || defaultEn,
+  };
 }

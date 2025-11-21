@@ -470,6 +470,13 @@
       "title": "Deploy Summary",
       "platform": "Platform",
       "target": "Target"
+    },
+    "releaseNotes": {
+      "info": "These release notes are only used for this deploy. To change defaults, update them via setup.",
+      "prompt": {
+        "tr": "Release notes (TR) for this deploy",
+        "en": "Release notes (EN) for this deploy"
+      }
     }
   },
   "buildDeploy": {
@@ -483,6 +490,13 @@
       "buildComplete": "Build phase completed.",
       "deployPhase": "Running deploy phase...",
       "complete": "Build & deploy finished."
+    },
+    "releaseNotes": {
+      "info": "These release notes are only used for this build & deploy run. To change defaults, update them via setup.",
+      "prompt": {
+        "tr": "Release notes (TR) for this run",
+        "en": "Release notes (EN) for this run"
+      }
     }
   }
 }
