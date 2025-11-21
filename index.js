@@ -2,6 +2,7 @@
 
 const { Command } = require('commander');
 const chalk = require('chalk');
+const { select, confirm } = require('@inquirer/prompts');
 const pkg = require('./package.json');
 const setup = require('./src/commands/setup/index.js');
 const doctor = require('./src/commands/doctor/index.js');
@@ -11,7 +12,7 @@ const deploy = require('./src/commands/deploy/index.js');
 const buildDeploy = require('./src/commands/build-deploy/index.js');
 const buildClean = require('./src/commands/build-clean/index.js');
 const { initI18n, t } = require('./src/i18n');
-const { registerExitPrompt } = require('./src/utils/exitPrompt');
+const { registerExitPrompt, handlePromptExit } = require('./src/utils/exitPrompt');
 
 const program = new Command();
 let lastErrorOutput = '';
@@ -79,4 +80,60 @@ deploy(program);
 buildDeploy(program);
 buildClean(program);
 
-program.parse(process.argv);
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
+
+async function main() {
+  const noCommandProvided = process.argv.length <= 2;
+
+  if (noCommandProvided && process.stdin.isTTY) {
+    while (true) {
+      try {
+        const choice = await select({
+          message: t('mainMenu.prompt'),
+          choices: [
+            { value: 'setup', name: t('mainMenu.setup') },
+            { value: 'build', name: t('mainMenu.build') },
+            { value: 'deploy', name: t('mainMenu.deploy') },
+            { value: 'build-deploy', name: t('mainMenu.buildDeploy') },
+            { value: 'exit', name: t('mainMenu.exit') },
+          ],
+        });
+
+        if (choice === 'exit') {
+          const shouldExit = await confirm({
+            message: t('common.exitPrompt'),
+            default: true,
+          });
+          if (shouldExit) {
+            return;
+          }
+          continue;
+        }
+
+        const argv = [process.argv[0], process.argv[1], choice];
+        program.parse(argv);
+        return;
+      } catch (error) {
+        const handled = await handlePromptExit(error);
+        if (handled === 'resume') {
+          continue;
+        }
+        if (!handled) {
+          throw error;
+        }
+        return;
+      }
+    }
+  }
+
+  if (noCommandProvided && !process.stdin.isTTY) {
+    program.outputHelp();
+    process.exitCode = 1;
+    return;
+  }
+
+  program.parse(process.argv);
+}

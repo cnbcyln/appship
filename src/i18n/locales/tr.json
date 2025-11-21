@@ -506,6 +506,15 @@
       }
     }
   },
+  "mainMenu": {
+    "prompt": "Bir işlem seçin",
+    "setup": "🔧 Kurulum İşlemleri (Full kurulum / Ayarları değiştir)",
+    "build": "🔨 Build Al",
+    "deploy": "📤 Deploy Et",
+    "buildDeploy": "🚀 Build + Deploy (Build al ve deploy et)",
+    "exit": "🚪 Çıkış",
+    "exitMessage": "AppShip’den çıkılıyor."
+  },
   "buildDeploy": {
     "description": "Uygulamayı tek seferde derle ve dağıt",
     "error": {

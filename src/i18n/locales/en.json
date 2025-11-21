@@ -506,6 +506,15 @@
       }
     }
   },
+  "mainMenu": {
+    "prompt": "Select an action",
+    "setup": "🔧 Setup (Full setup / edit settings)",
+    "build": "🔨 Build",
+    "deploy": "📤 Deploy",
+    "buildDeploy": "🚀 Build + Deploy",
+    "exit": "🚪 Exit",
+    "exitMessage": "Exiting AppShip."
+  },
   "buildDeploy": {
     "description": "Build and deploy the app in a single run",
     "error": {
