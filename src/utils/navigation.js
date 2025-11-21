@@ -20,7 +20,7 @@ async function selectWithBack(options = {}) {
   const backLabel = options.backLabel || t('common.back', '⬅️  Back');
   const baseChoices = options.choices || [];
   const choices = [...baseChoices, { value: BACK_VALUE, name: backLabel }];
-  const answer = await select({ ...options, choices, pageSize: 10, loop: false, theme: baseTheme });
+  const answer = await select({ ...options, choices, pageSize: 10, theme: baseTheme });
   if (answer === BACK_VALUE) {
     return null;
   }

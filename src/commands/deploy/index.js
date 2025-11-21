@@ -30,7 +30,7 @@ function registerDeployCommand(program) {
 
     const platform = await promptPlatformSelection();
     if (!platform) break;
-    console.log(chalk.cyan(t('deploy.platform.selection', { value: t(getPlatformLabelKey(platform)) })));
+    //console.log(chalk.cyan(t('deploy.platform.selection', { value: t(getPlatformLabelKey(platform)) })));
 
     ensureConfigFile();
     let config = readConfig();
@@ -120,7 +120,7 @@ async function handlePlatformSelection({ platform, baseOutputDir }) {
         return null;
       }
       const meta = extractArtifactMeta(artifact);
-      console.log(
+      /* console.log(
         chalk.green(
           t('deploy.output.selectedDetailed', {
             platform: t(getPlatformLabelKey(platform)),
@@ -131,7 +131,7 @@ async function handlePlatformSelection({ platform, baseOutputDir }) {
             time: meta.time || t('common.unknownValue'),
           })
         )
-      );
+      ); */
       step = 'target';
       continue;
     }

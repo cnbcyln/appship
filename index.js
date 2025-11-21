@@ -13,6 +13,7 @@ const buildDeploy = require('./src/commands/build-deploy/index.js');
 const buildClean = require('./src/commands/build-clean/index.js');
 const { initI18n, t } = require('./src/i18n');
 const { registerExitPrompt, handlePromptExit } = require('./src/utils/exitPrompt');
+const baseTheme = require('./src/utils/selectTheme');
 
 const program = new Command();
 let lastErrorOutput = '';
@@ -100,8 +101,11 @@ async function main() {
             { value: 'deploy', name: t('mainMenu.deploy') },
             { value: 'build-deploy', name: t('mainMenu.buildDeploy') },
             { value: 'build-clean', name: t('mainMenu.buildClean') },
+            { value: 'lang', name: t('mainMenu.lang') },
             { value: 'exit', name: t('mainMenu.exit') },
           ],
+          pageSize: 10,
+          theme: baseTheme,
         });
 
         if (choice === 'exit') {

@@ -38,7 +38,7 @@ function registerLangCommand(program) {
           default: current,
         });
         if (!language) {
-          continue;
+          return;
         }
 
         if (language === current) {

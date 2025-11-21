@@ -50,7 +50,7 @@ function registerBuildDeployCommand(program) {
             selectionExitToMain = true;
             break;
           }
-          console.log(chalk.cyan(t('build.platform.selection', { value: t(getBuildPlatformLabelKey(platform)) })));
+          //console.log(chalk.cyan(t('build.platform.selection', { value: t(getBuildPlatformLabelKey(platform)) })));
           androidFormat = null;
           step = platform === 'android' || platform === 'both' ? 'format' : 'version';
           continue;
@@ -62,7 +62,7 @@ function registerBuildDeployCommand(program) {
             step = 'platform';
             continue;
           }
-          console.log(chalk.cyan(t('build.format.selection', { value: t(getFormatLabelKey(androidFormat)) })));
+          //console.log(chalk.cyan(t('build.format.selection', { value: t(getFormatLabelKey(androidFormat)) })));
           step = 'version';
           continue;
         }
@@ -97,14 +97,14 @@ function registerBuildDeployCommand(program) {
               return;
             }
           } else {
-            console.log(
+            /* console.log(
               chalk.cyan(
                 t('build.version.selection.keep', {
                   version: versionDecision.versionDisplay,
                   build: versionDecision.buildDisplay,
                 })
               )
-            );
+            ); */
           }
 
           step = 'notes';

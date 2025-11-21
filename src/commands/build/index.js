@@ -44,7 +44,7 @@ function registerBuildCommand(program) {
             selectionExitToMain = true;
             break;
           }
-          console.log(chalk.cyan(t('build.platform.selection', { value: t(getPlatformLabelKey(platform)) })));
+          //console.log(chalk.cyan(t('build.platform.selection', { value: t(getPlatformLabelKey(platform)) })));
           androidFormat = null;
           step = platform === 'android' || platform === 'both' ? 'format' : 'version';
           continue;
@@ -56,7 +56,7 @@ function registerBuildCommand(program) {
             step = 'platform';
             continue;
           }
-          console.log(chalk.cyan(t('build.format.selection', { value: t(getFormatLabelKey(androidFormat)) })));
+          //console.log(chalk.cyan(t('build.format.selection', { value: t(getFormatLabelKey(androidFormat)) })));
           step = 'version';
           continue;
         }
@@ -98,14 +98,14 @@ function registerBuildCommand(program) {
               return;
             }
           } else {
-            console.log(
+            /* console.log(
               chalk.cyan(
                 t('build.version.selection.keep', {
                   version: versionDecision.versionDisplay,
                   build: versionDecision.buildDisplay,
                 })
               )
-            );
+            ); */
           }
           break;
         }
