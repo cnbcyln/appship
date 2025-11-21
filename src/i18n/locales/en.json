@@ -439,10 +439,7 @@
         }
       },
       "ios": {
-        "start": {
-          "appstore": "Starting iOS deploy.. (Target: App Store Review)",
-          "testflight": "Starting iOS deploy.. (Target: TestFlight)"
-        },
+        "start": "Starting iOS deploy..",
         "success": {
           "appstore": "iOS deploy completed. (Target: App Store Review)",
           "testflight": "iOS deploy completed. (Target: TestFlight)"

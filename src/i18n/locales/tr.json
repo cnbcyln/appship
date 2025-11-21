@@ -439,10 +439,7 @@
         }
       },
       "ios": {
-        "start": {
-          "appstore": "iOS deploy başlatılıyor.. (Hedef: App Store Review)",
-          "testflight": "iOS deploy başlatılıyor.. (Hedef: TestFlight)"
-        },
+        "start": "iOS deploy başlatılıyor..",
         "success": {
           "appstore": "iOS deploy tamamlandı. (Hedef: App Store Review)",
           "testflight": "iOS deploy tamamlandı. (Hedef: TestFlight)"

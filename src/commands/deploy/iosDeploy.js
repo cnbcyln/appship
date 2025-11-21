@@ -1,4 +1,5 @@
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const chalk = require('chalk');
 const { runCommand } = require('../../utils/process');
@@ -23,6 +24,14 @@ function validateIosDeployConfig({ config, artifact }) {
   }
   if (!config.APPLE_BUNDLE_ID) {
     missing.push(t('deploy.run.ios.errors.missingBundleId'));
+  }
+
+  if (config.APPLE_API_KEY_PATH && fs.existsSync(config.APPLE_API_KEY_PATH)) {
+    const ext = path.extname(config.APPLE_API_KEY_PATH).toLowerCase();
+    const supported = ['.p8', '.json'];
+    if (!supported.includes(ext)) {
+      missing.push(t('deploy.run.ios.errors.invalidApiKeyFormat'));
+    }
   }
 
   const ext = path.extname(artifact?.path || '').toLowerCase();
@@ -50,11 +59,7 @@ async function runIosDeploy({ artifact, target, config }) {
     throw new Error(t('setupFix.failed'));
   }
 
-  const apiKeyPath = path.resolve(config.APPLE_API_KEY_PATH);
-  const apiKeyExt = path.extname(apiKeyPath || '').toLowerCase();
-  if (apiKeyExt !== '.p8') {
-    throw new Error(t('deploy.run.ios.errors.invalidApiKeyFormat'));
-  }
+  const apiKeyPath = prepareApiKeyFile(config);
   const appId = config.APPLE_BUNDLE_ID;
   const env = {
     ...process.env,
@@ -62,8 +67,9 @@ async function runIosDeploy({ artifact, target, config }) {
     DELIVER_ITMSTRANSPORTER_ADDITIONAL_UPLOAD_PARAMETERS: '-t DAV',
   };
 
+  console.log(chalk.blue(t('deploy.run.ios.start')));
+
   if (isAppStore(target.key)) {
-    console.log(chalk.blue(t('deploy.run.ios.start.appstore')));
     const args = [
       'deliver',
       '--ipa',
@@ -92,7 +98,7 @@ async function runIosDeploy({ artifact, target, config }) {
     return { platform: 'ios', target: 'appstore', artifact: artifact.path };
   }
 
-  console.log(chalk.blue(t('deploy.run.ios.start.testflight')));
+  const changelog = buildChangelog(config);
   const args = [
     'pilot',
     'upload',
@@ -107,6 +113,9 @@ async function runIosDeploy({ artifact, target, config }) {
     '--skip_waiting_for_build_processing',
     'true',
   ];
+  if (changelog) {
+    args.push('--changelog', changelog);
+  }
   if (config.APPLE_TEAM_ID) {
     args.push('--itc_provider', config.APPLE_TEAM_ID);
   }
@@ -137,4 +146,51 @@ function mapIosFailure(result, target) {
     return t('deploy.run.ios.errors.uploadFailedAppstore');
   }
   return t('deploy.run.ios.errors.uploadFailedTestflight');
+}
+
+function prepareApiKeyFile(config) {
+  const rawPath = path.resolve(config.APPLE_API_KEY_PATH);
+  const ext = path.extname(rawPath).toLowerCase();
+
+  if (ext === '.json') {
+    return rawPath;
+  }
+
+  if (ext !== '.p8') {
+    throw new Error(t('deploy.run.ios.errors.invalidApiKeyFormat'));
+  }
+
+  const keyId = (config.APPLE_API_KEY_ID || '').trim();
+  const issuerId = (config.APPLE_API_ISSUER_ID || '').trim();
+  if (!keyId || !issuerId) {
+    throw new Error(t('deploy.run.ios.errors.invalidApiKeyFormat'));
+  }
+
+  let keyContent;
+  try {
+    keyContent = fs.readFileSync(rawPath, 'utf8');
+  } catch {
+    throw new Error(t('deploy.run.ios.errors.invalidApiKeyFormat'));
+  }
+
+  const normalizedKey = keyContent.replace(/\r\n/g, '\n');
+  const jsonPayload = {
+    key_id: keyId,
+    issuer_id: issuerId,
+    key: normalizedKey,
+  };
+
+  const safeKeyId = keyId.replace(/[^a-z0-9_\-]/gi, ''); // avoids odd filenames
+  const targetPath = path.join(os.tmpdir(), `appship_asc_${safeKeyId || 'key'}.json`);
+  fs.writeFileSync(targetPath, JSON.stringify(jsonPayload, null, 2), 'utf8');
+  return targetPath;
+}
+
+function buildChangelog(config = {}) {
+  const en = (config.RELEASE_NOTES_EN || '').trim();
+  const tr = (config.RELEASE_NOTES_TR || '').trim();
+
+  if (en) return en;
+  if (tr) return tr;
+  return '';
 }
