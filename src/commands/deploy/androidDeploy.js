@@ -147,7 +147,7 @@ function createAndroidReleaseNotesMetadata(releaseNotes) {
   }
 
   const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'appship_play_notes_'));
-  const metaRoot = path.join(tmpRoot, 'metadata', 'android');
+  const metaRoot = path.join(tmpRoot, 'metadata');
 
   entries.forEach((entry) => {
     const changelogDir = path.join(metaRoot, entry.code, 'changelogs');
@@ -156,5 +156,5 @@ function createAndroidReleaseNotesMetadata(releaseNotes) {
     fs.writeFileSync(targetFile, entry.value, 'utf8');
   });
 
-  return path.join(tmpRoot, 'metadata');
+  return metaRoot;
 }

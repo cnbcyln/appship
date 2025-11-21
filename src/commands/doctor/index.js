@@ -13,7 +13,8 @@ function doctorCommand(program) {
     .option('--fastlane', t('doctor.info.options.fastlane'));
 
   doctor.action(async (subcommand, options) => {
-    try {
+    while (true) {
+      try {
       if (subcommand) {
         if (subcommand === 'help') {
           console.log(t('doctor.info.helpDescription'));
@@ -49,10 +50,16 @@ function doctorCommand(program) {
         console.log(chalk.red(`\n${t('doctor.error.unexpected', { message: error.message })}`));
         process.exitCode = 1;
       }
-    } catch (error) {
-      const handled = await handlePromptExit(error);
-      if (!handled) {
-        throw error;
+      break;
+      } catch (error) {
+        const handled = await handlePromptExit(error);
+        if (handled === 'resume') {
+          continue;
+        }
+        if (!handled) {
+          throw error;
+        }
+        break;
       }
     }
   });

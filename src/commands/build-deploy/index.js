@@ -22,7 +22,8 @@ function registerBuildDeployCommand(program) {
   const buildDeploy = program.command('build-deploy').description(t('buildDeploy.description'));
 
   buildDeploy.action(async () => {
-    try {
+    while (true) {
+      try {
       if (!process.stdin.isTTY) {
         console.log(chalk.red(t('buildDeploy.error.nonInteractive')));
         buildDeploy.outputHelp();
@@ -134,18 +135,16 @@ function registerBuildDeployCommand(program) {
       console.log(chalk.blue(t('buildDeploy.info.buildComplete')));
 
       console.log(chalk.blue(t('buildDeploy.info.deployPhase')));
+      const targetSelections = await collectDeployTargets(artifacts);
       const deployResults = [];
 
       for (const artifact of artifacts) {
-        const target = await promptTargetSelection({ platform: artifact.platform });
-        console.log(
-          chalk.green(
-            t('deploy.target.selected', {
-              platform: t(getDeployPlatformLabelKey(artifact.platform)),
-              target: target.label,
-            })
-          )
-        );
+        const target = targetSelections[artifact.platform];
+        if (!target) {
+          console.log(chalk.red(t('deploy.error.nonInteractive')));
+          process.exitCode = 1;
+          return;
+        }
 
         try {
           if (artifact.platform === 'android') {
@@ -206,10 +205,16 @@ function registerBuildDeployCommand(program) {
 
       logDeploySummary(deployResults);
       console.log(chalk.green(t('buildDeploy.info.complete')));
-    } catch (error) {
-      const handled = await handlePromptExit(error);
-      if (!handled) {
-        throw error;
+      break;
+      } catch (error) {
+        const handled = await handlePromptExit(error);
+        if (handled === 'resume') {
+          continue;
+        }
+        if (!handled) {
+          throw error;
+        }
+        break;
       }
     }
   });
@@ -433,4 +438,29 @@ async function promptReleaseNotes(config, { shouldRunIos, shouldRunAndroid }) {
     tr: trimmedTr || defaultTr,
     en: trimmedEn || defaultEn,
   };
+}
+
+async function collectDeployTargets(artifacts = []) {
+  const targets = {};
+  const seen = new Set();
+
+  for (const artifact of artifacts) {
+    const platform = artifact.platform;
+    if (!platform || seen.has(platform)) {
+      continue;
+    }
+    const target = await promptTargetSelection({ platform });
+    console.log(
+      chalk.green(
+        t('deploy.target.selected', {
+          platform: t(getDeployPlatformLabelKey(platform)),
+          target: target.label,
+        })
+      )
+    );
+    targets[platform] = target;
+    seen.add(platform);
+  }
+
+  return targets;
 }

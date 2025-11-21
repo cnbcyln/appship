@@ -44,7 +44,7 @@ async function handlePromptExit(error) {
     if (shouldExit) {
       process.exit(1);
     }
-    return true;
+    return 'resume';
   } catch {
     return false;
   }

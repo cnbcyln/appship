@@ -17,7 +17,8 @@ function registerBuildCommand(program) {
   const build = program.command('build').description(t('build.description'));
 
   build.action(async () => {
-    try {
+    while (true) {
+      try {
       if (!process.stdin.isTTY) {
         console.log(chalk.red(t('build.error.nonInteractive')));
         build.outputHelp();
@@ -128,10 +129,16 @@ function registerBuildCommand(program) {
 
       logBuildSummary(summary, artifacts);
       await promptOpenOutputFolder(config, platform);
-    } catch (error) {
-      const handled = await handlePromptExit(error);
-      if (!handled) {
-        throw error;
+      break;
+      } catch (error) {
+        const handled = await handlePromptExit(error);
+        if (handled === 'resume') {
+          continue;
+        }
+        if (!handled) {
+          throw error;
+        }
+        break;
       }
     }
   });

@@ -19,7 +19,8 @@ function registerDeployCommand(program) {
   const deploy = program.command('deploy').description(t('deploy.description'));
 
   deploy.action(async () => {
-    try {
+    while (true) {
+      try {
       if (!process.stdin.isTTY) {
         console.log(chalk.red(t('deploy.error.nonInteractive')));
         deploy.outputHelp();
@@ -81,10 +82,16 @@ function registerDeployCommand(program) {
     }
 
     logDeploySummary(deployResults);
-    } catch (error) {
-      const handled = await handlePromptExit(error);
-      if (!handled) {
-        throw error;
+      break;
+      } catch (error) {
+        const handled = await handlePromptExit(error);
+        if (handled === 'resume') {
+          continue;
+        }
+        if (!handled) {
+          throw error;
+        }
+        break;
       }
     }
   });

@@ -14,7 +14,8 @@ function registerLangCommand(program) {
     .command('lang')
     .description(t('lang.info.description'))
     .action(async () => {
-      try {
+      while (true) {
+        try {
         ensureConfigFile();
 
         if (!process.stdin.isTTY) {
@@ -44,10 +45,16 @@ function registerLangCommand(program) {
         updateConfig({ LANGUAGE: language });
         setLocale(language);
         console.log(chalk.green(t('lang.success.updated', { language: t(getLabelKey(language)) })));
-      } catch (error) {
-        const handled = await handlePromptExit(error);
-        if (!handled) {
-          throw error;
+        break;
+        } catch (error) {
+          const handled = await handlePromptExit(error);
+          if (handled === 'resume') {
+            continue;
+          }
+          if (!handled) {
+            throw error;
+          }
+          break;
         }
       }
     });

@@ -360,6 +360,33 @@
       "nonInteractive": "Build komutu etkileşimli terminal gerektirir."
     }
   },
+  "buildClean": {
+    "description": "Build çıktılarının temizlenmesini sağlar",
+    "options": {
+      "android": "Android çıktısını temizle",
+      "ios": "iOS çıktısını temizle",
+      "all": "Tüm çıktıları temizle"
+    },
+    "menu": {
+      "prompt": "Hangi çıktıları temizlemek istersiniz?",
+      "android": "Android",
+      "ios": "iOS",
+      "both": "Android + iOS",
+      "confirm": "{target} çıktıları silinsin mi?"
+    },
+    "info": {
+      "nothing": "Temizlenecek çıktı bulunamadı.",
+      "cancelled": "Temizleme iptal edildi."
+    },
+    "success": {
+      "removed": "Silindi: {path}",
+      "cleaned": "{target} çıktıları başarıyla temizlendi."
+    },
+    "error": {
+      "nonInteractive": "Seçenek verilmemişse build-clean komutu etkileşimli terminal gerektirir.",
+      "outputDirMissing": "Build çıktı klasörü yapılandırılmamış."
+    }
+  },
   "setupFix": {
     "prompts": {
       "projectInfo": "Proje bilgileri eksik. Proje Bilgileri kurulumunu yeniden çalıştırmak ister misiniz?",

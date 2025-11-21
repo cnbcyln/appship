@@ -1,6 +1,8 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const https = require('https');
+const crypto = require('crypto');
 const chalk = require('chalk');
 const { runCommand } = require('../../utils/process');
 const { t } = require('../../i18n');
@@ -60,6 +62,7 @@ async function runIosDeploy({ artifact, target, config, releaseNotes }) {
   }
 
   const apiKeyPath = prepareApiKeyFile(config);
+  const availableLocales = await fetchAppStoreLocales({ config, apiKeyPath });
   const appId = config.APPLE_BUNDLE_ID;
   const env = {
     ...process.env,
@@ -70,7 +73,7 @@ async function runIosDeploy({ artifact, target, config, releaseNotes }) {
   console.log(chalk.blue(t('deploy.run.ios.start')));
 
   if (isAppStore(target.key)) {
-    const notes = buildChangelog(config, releaseNotes);
+    const notesMap = buildReleaseNotesMap(config, releaseNotes, availableLocales);
     const args = [
       'deliver',
       '--ipa',
@@ -79,19 +82,26 @@ async function runIosDeploy({ artifact, target, config, releaseNotes }) {
       apiKeyPath,
       '--app_identifier',
       appId,
-      '--skip_metadata',
-      'true',
       '--skip_screenshots',
-      'true',
-      '--skip_app_version_update',
       'true',
       '--force',
       'true',
+      '--submit_for_review',
+      'true',
+      '--automatic_release',
+      'false',
+      '--run_precheck_before_submit',
+      'false',
+      '--submission_information',
+      JSON.stringify({
+        export_compliance_uses_encryption: false,
+        export_compliance_encryption_updated: false,
+        export_compliance_app_type: 'standard',
+      }),
     ];
-    if (notes) {
-      args.push('--release_notes', notes);
+    if (notesMap) {
+      args.push('--release_notes', JSON.stringify(notesMap));
     }
-    args.push('--submit_for_review', 'false', '--automatic_release', 'false');
 
   const result = runCommand('fastlane', args, { inherit: true, env });
   if (!result.success) {
@@ -208,4 +218,145 @@ function buildChangelog(config = {}, overrideReleaseNotes) {
   if (en) return en;
   if (tr) return tr;
   return '';
+}
+
+async function fetchAppStoreLocales({ config, apiKeyPath }) {
+  try {
+    const token = buildAppStoreJwtFromKey(config, apiKeyPath);
+    const appId = await fetchAppId({ bundleId: config.APPLE_BUNDLE_ID, token });
+    if (!appId) {
+      return ['en-US'];
+    }
+    const versionId = await fetchLatestVersionId({ appId, token });
+    if (!versionId) {
+      return ['en-US'];
+    }
+    const locales = await fetchLocalesForVersion({ versionId, token });
+    return locales.length ? locales : ['en-US'];
+  } catch {
+    return ['en-US'];
+  }
+}
+
+function buildAppStoreJwtFromKey(config, apiKeyPath) {
+  const resolved = apiKeyPath || prepareApiKeyFile(config);
+  const content = fs.readFileSync(resolved, 'utf8');
+  const parsed = JSON.parse(content);
+  const keyId = parsed.key_id || parsed.keyId || parsed.keyID;
+  const issuerId = parsed.issuer_id || parsed.issuerId;
+  const privateKey = parsed.key || parsed.private_key || parsed.privateKey;
+
+  if (!keyId || !issuerId || !privateKey) {
+    throw new Error('Invalid API key file');
+  }
+
+  const header = { alg: 'ES256', kid: keyId, typ: 'JWT' };
+  const now = Math.floor(Date.now() / 1000);
+  const payload = {
+    iss: issuerId,
+    exp: now + 1200,
+    aud: 'appstoreconnect-v1',
+  };
+
+  const encodedHeader = base64UrlEncode(Buffer.from(JSON.stringify(header)));
+  const encodedPayload = base64UrlEncode(Buffer.from(JSON.stringify(payload)));
+  const data = `${encodedHeader}.${encodedPayload}`;
+
+  const signer = crypto.createSign('sha256');
+  signer.update(data);
+  signer.end();
+  const signature = signer.sign(privateKey);
+  const encodedSignature = base64UrlEncode(signature);
+
+  return `${data}.${encodedSignature}`;
+}
+
+function base64UrlEncode(buffer) {
+  return buffer.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+async function fetchAppId({ bundleId, token }) {
+  const url = `https://api.appstoreconnect.apple.com/v1/apps?filter[bundleId]=${encodeURIComponent(bundleId)}&limit=1`;
+  const json = await fetchJson(url, token);
+  return json?.data?.[0]?.id || null;
+}
+
+async function fetchLatestVersionId({ appId, token }) {
+  const url = `https://api.appstoreconnect.apple.com/v1/apps/${appId}/appStoreVersions?limit=1&sort=-versionString&filter[platform]=IOS`;
+  const json = await fetchJson(url, token);
+  return json?.data?.[0]?.id || null;
+}
+
+async function fetchLocalesForVersion({ versionId, token }) {
+  const url = `https://api.appstoreconnect.apple.com/v1/appStoreVersionLocalizations?filter[appStoreVersion]=${encodeURIComponent(
+    versionId
+  )}&fields[appStoreVersionLocalizations]=locale&limit=50`;
+  const json = await fetchJson(url, token);
+  const locales = (json?.data || []).map((item) => item?.attributes?.locale).filter(Boolean);
+  return locales;
+}
+
+async function fetchJson(url, token) {
+  return new Promise((resolve, reject) => {
+    const req = https.get(
+      url,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      },
+      (res) => {
+        let body = '';
+        res.on('data', (chunk) => {
+          body += chunk;
+        });
+        res.on('end', () => {
+          try {
+            const parsed = JSON.parse(body || '{}');
+            resolve(parsed);
+          } catch (err) {
+            reject(err);
+          }
+        });
+      }
+    );
+
+    req.on('error', reject);
+    req.end();
+  });
+}
+
+function buildReleaseNotesMap(config = {}, overrideReleaseNotes, availableLocales = []) {
+  const locales = Array.isArray(availableLocales) && availableLocales.length > 0 ? availableLocales : ['en-US'];
+  const overrideEn = (overrideReleaseNotes?.en || '').trim();
+  const overrideTr = (overrideReleaseNotes?.tr || '').trim();
+  const en = (config.RELEASE_NOTES_EN || '').trim();
+  const tr = (config.RELEASE_NOTES_TR || '').trim();
+
+  const map = {};
+  const fallback = overrideEn || overrideTr || en || tr || '';
+  if (!fallback) {
+    return null;
+  }
+
+  locales.forEach((locale) => {
+    if (!locale) return;
+    const low = locale.toLowerCase();
+    let text = fallback;
+    if (low.startsWith('en')) {
+      text = overrideEn || en || fallback;
+    } else if (low.startsWith('tr')) {
+      text = overrideTr || tr || fallback;
+    }
+    if (text) {
+      map[locale] = text;
+    }
+  });
+
+  if (!Object.keys(map).length && fallback) {
+    map['en-US'] = fallback;
+  }
+
+  return Object.keys(map).length > 0 ? map : null;
 }

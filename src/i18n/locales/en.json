@@ -360,6 +360,33 @@
       "nonInteractive": "Build command requires an interactive terminal."
     }
   },
+  "buildClean": {
+    "description": "Removes build artifacts",
+    "options": {
+      "android": "Clean Android artifacts",
+      "ios": "Clean iOS artifacts",
+      "all": "Clean all artifacts"
+    },
+    "menu": {
+      "prompt": "Select which artifacts to clean",
+      "android": "Android",
+      "ios": "iOS",
+      "both": "Android + iOS",
+      "confirm": "Are you sure you want to delete {target} artifacts?"
+    },
+    "info": {
+      "nothing": "No artifacts found to clean.",
+      "cancelled": "Cleanup cancelled."
+    },
+    "success": {
+      "removed": "Removed: {path}",
+      "cleaned": "{target} artifacts cleaned successfully."
+    },
+    "error": {
+      "nonInteractive": "Build-clean command requires an interactive terminal when no options are provided.",
+      "outputDirMissing": "Build output directory is not configured."
+    }
+  },
   "setupFix": {
     "prompts": {
       "projectInfo": "Project info is incomplete. Would you like to rerun the Project Information setup?",
