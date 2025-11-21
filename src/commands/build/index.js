@@ -30,6 +30,7 @@ function registerBuildCommand(program) {
       let config = readConfig();
 
       let platform = null;
+      const allowBackFirst = global.__APPSHIP_FROM_MAIN === true;
       let androidFormat = null;
       let finalVersion = null;
       let finalBuild = null;
@@ -38,7 +39,7 @@ function registerBuildCommand(program) {
       let step = 'platform';
       while (true) {
         if (step === 'platform') {
-          platform = await promptPlatformSelection();
+          platform = await promptPlatformSelection({ allowBack: allowBackFirst });
           if (!platform) {
             selectionExitToMain = true;
             break;
@@ -50,7 +51,7 @@ function registerBuildCommand(program) {
         }
 
         if (step === 'format') {
-          androidFormat = await promptAndroidFormatSelection();
+          androidFormat = await promptAndroidFormatSelection({ allowBack: true });
           if (!androidFormat) {
             step = 'platform';
             continue;
@@ -66,7 +67,7 @@ function registerBuildCommand(program) {
             console.log(chalk.yellow(t(versionInfo.warningKey)));
           }
 
-          const versionDecision = await promptVersionDecision(versionInfo);
+          const versionDecision = await promptVersionDecision(versionInfo, { allowBack: true });
           if (!versionDecision) {
             step = platform === 'android' || platform === 'both' ? 'format' : 'platform';
             continue;
@@ -76,7 +77,7 @@ function registerBuildCommand(program) {
 
           if (versionDecision.decision === 'bump') {
             try {
-              const bumpResult = await handleVersionBump(versionInfo);
+              const bumpResult = await handleVersionBump(versionInfo, { allowBack: true });
               if (!bumpResult) {
                 step = 'version';
                 continue;

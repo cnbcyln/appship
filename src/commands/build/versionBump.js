@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
-const { selectWithBack } = require('../../utils/selectWithBack');
+const { selectWithBack } = require('../../utils/navigation');
 const { t } = require('../../i18n');
 const { promptRequiredInput } = require('../../utils/promptRequiredInput');
 
@@ -65,7 +65,7 @@ function computeBumpTarget(base, type) {
   };
 }
 
-async function promptBumpType(base) {
+async function promptBumpType(base, { allowBack = true } = {}) {
   const options = ['major', 'minor', 'patch'];
   const choices = options.map((type) => {
     const next = computeBumpTarget(base, type);
@@ -83,6 +83,7 @@ async function promptBumpType(base) {
   choices.push({ value: 'manual', name: t('build.version.bump.menu.manual') });
 
   const selection = await selectWithBack({
+    allowBack,
     message: t('build.version.bump.menu.prompt'),
     choices,
   });
@@ -170,9 +171,9 @@ function updatePubspecVersion(pubspecPath, version, build) {
   fs.writeFileSync(resolvedPath, content, 'utf8');
 }
 
-async function handleVersionBump(versionInfo = {}) {
+async function handleVersionBump(versionInfo = {}, { allowBack = true } = {}) {
   const base = normalizeVersionInfo(versionInfo);
-  const bumpType = await promptBumpType(base);
+  const bumpType = await promptBumpType(base, { allowBack });
   if (!bumpType) {
     return null;
   }

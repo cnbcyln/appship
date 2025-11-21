@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
 const { confirm } = require('@inquirer/prompts');
-const { selectWithBack } = require('../../utils/selectWithBack');
+const { selectWithBack } = require('../../utils/navigation');
 const { ensureConfigFile, readConfig } = require('../../utils/config');
 const { t } = require('../../i18n');
 const { handlePromptExit } = require('../../utils/exitPrompt');
@@ -43,10 +43,7 @@ function registerBuildCleanCommand(program) {
 
       const target = await resolveTarget(options);
       if (!target) {
-        if (global.__APPSHIP_ALLOW_BACK) {
-          break; // ana menüye dön
-        }
-        continue;
+        break; // ana menüye dön
       }
 
       const confirmed = await confirmCleanup(target);
@@ -92,6 +89,7 @@ async function resolveTarget(options = {}) {
   if (options.ios) return 'ios';
 
   const choice = await selectWithBack({
+    allowBack: global.__APPSHIP_FROM_MAIN === true,
     message: t('buildClean.menu.prompt'),
     choices: [
       { value: 'android', name: t('buildClean.menu.android') },

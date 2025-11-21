@@ -89,9 +89,9 @@ async function main() {
   const noCommandProvided = process.argv.length <= 2;
 
   if (noCommandProvided && process.stdin.isTTY) {
+    global.__APPSHIP_FROM_MAIN = true;
     while (true) {
       try {
-        global.__APPSHIP_ALLOW_BACK = true;
         const choice = await select({
           message: t('mainMenu.prompt'),
           choices: [
@@ -127,10 +127,12 @@ async function main() {
         if (!handled) {
           throw error;
         }
-        return;
+        continue;
       }
     }
   }
+
+  global.__APPSHIP_FROM_MAIN = false;
 
   if (noCommandProvided && !process.stdin.isTTY) {
     program.outputHelp();
@@ -138,6 +140,5 @@ async function main() {
     return;
   }
 
-  global.__APPSHIP_ALLOW_BACK = false;
   program.parse(process.argv);
 }

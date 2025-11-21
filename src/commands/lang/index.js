@@ -1,5 +1,5 @@
 const chalk = require('chalk');
-const { selectWithBack } = require('../../utils/selectWithBack');
+const { selectWithBack } = require('../../utils/navigation');
 const { readConfig, updateConfig, ensureConfigFile } = require('../../utils/config');
 const { t, setLocale } = require('../../i18n');
 const { handlePromptExit } = require('../../utils/exitPrompt');
@@ -31,6 +31,7 @@ function registerLangCommand(program) {
         }));
 
         const language = await selectWithBack({
+          allowBack: global.__APPSHIP_FROM_MAIN === true,
           message: t('lang.info.prompt'),
           choices,
           loop: false,

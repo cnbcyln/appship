@@ -45,7 +45,7 @@ function registerBuildDeployCommand(program) {
       let step = 'platform';
       while (true) {
         if (step === 'platform') {
-          platform = await promptBuildPlatformSelection();
+          platform = await promptBuildPlatformSelection({ allowBack: global.__APPSHIP_FROM_MAIN === true });
           if (!platform) {
             selectionExitToMain = true;
             break;
@@ -57,7 +57,7 @@ function registerBuildDeployCommand(program) {
         }
 
         if (step === 'format') {
-          androidFormat = await promptAndroidFormatSelection();
+          androidFormat = await promptAndroidFormatSelection({ allowBack: true });
           if (!androidFormat) {
             step = 'platform';
             continue;
@@ -73,7 +73,7 @@ function registerBuildDeployCommand(program) {
             console.log(chalk.yellow(t(versionInfo.warningKey)));
           }
 
-          const versionDecision = await promptVersionDecision(versionInfo);
+          const versionDecision = await promptVersionDecision(versionInfo, { allowBack: true });
           if (!versionDecision) {
             step = platform === 'android' || platform === 'both' ? 'format' : 'platform';
             continue;

@@ -1,5 +1,5 @@
 const chalk = require('chalk');
-const { selectWithBack } = require('../../utils/selectWithBack');
+const { selectWithBack } = require('../../utils/navigation');
 const { t } = require('../../i18n');
 const { handlePromptExit } = require('../../utils/exitPrompt');
 const { ensureConfigFile, readConfig } = require('../../utils/config');
@@ -21,6 +21,7 @@ function setupCommand(program) {
         }
 
         const choice = await selectWithBack({
+          allowBack: global.__APPSHIP_FROM_MAIN === true,
           message: t('setup.menu.prompt'),
           choices: [
             { name: t('setup.menu.full'), value: 'full' },

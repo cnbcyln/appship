@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { selectWithBack } = require('../../utils/selectWithBack');
+const { selectWithBack } = require('../../utils/navigation');
 const chalk = require('chalk');
 const { t } = require('../../i18n');
 const { getPlatformLabelKey } = require('./platformSelection');
@@ -13,6 +13,7 @@ async function promptArtifactSelection({ platform, baseOutputDir }) {
   }
 
   const choice = await selectWithBack({
+    allowBack: true,
     message: t('deploy.output.menu.prompt', { platform: t(getPlatformLabelKey(platform)) }),
     choices: artifacts.map((artifact) => ({
       value: artifact,

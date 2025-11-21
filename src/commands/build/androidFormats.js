@@ -1,8 +1,9 @@
-const { selectWithBack } = require('../../utils/selectWithBack');
+const { selectWithBack } = require('../../utils/navigation');
 const { t } = require('../../i18n');
 
-async function promptAndroidFormatSelection() {
+async function promptAndroidFormatSelection({ allowBack = true } = {}) {
   const format = await selectWithBack({
+    allowBack,
     message: t('build.format.menu.prompt'),
     choices: [
       { value: 'apk', name: t('build.format.menu.apk') },

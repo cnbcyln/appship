@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { selectWithBack } = require('../../utils/selectWithBack');
+const { selectWithBack } = require('../../utils/navigation');
 const { t } = require('../../i18n');
 
 function getPubspecVersionInfo() {
@@ -39,11 +39,12 @@ function getPubspecVersionInfo() {
   return info;
 }
 
-async function promptVersionDecision(info = {}) {
+async function promptVersionDecision(info = {}, { allowBack = true } = {}) {
   const versionDisplay = info.version || t('common.unknownValue');
   const buildDisplay = info.build || t('common.unknownValue');
 
   const decision = await selectWithBack({
+    allowBack,
     message: t('build.version.menu.prompt', { version: versionDisplay }),
     choices: [
       { value: 'bump', name: t('build.version.menu.bump') },

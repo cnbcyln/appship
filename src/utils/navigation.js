@@ -3,17 +3,20 @@ const { t } = require('../i18n');
 
 const BACK_VALUE = '__back';
 
-async function selectWithBack(options = {}) {
-  const allowBack =
-    Object.prototype.hasOwnProperty.call(options, 'allowBack') && options.allowBack !== undefined
-      ? options.allowBack
-      : global.__APPSHIP_ALLOW_BACK === true;
+function shouldAllowBack(options = {}) {
+  if (Object.prototype.hasOwnProperty.call(options, 'allowBack')) {
+    return Boolean(options.allowBack);
+  }
+  return true;
+}
 
+async function selectWithBack(options = {}) {
+  const allowBack = shouldAllowBack(options);
   if (!allowBack) {
     return select(options);
   }
 
-  const backLabel = t('common.back', '⬅️  Back');
+  const backLabel = options.backLabel || t('common.back', '⬅️  Back');
   const baseChoices = options.choices || [];
   const choices = [...baseChoices, { value: BACK_VALUE, name: backLabel }];
   const answer = await select({ ...options, choices });
@@ -25,4 +28,6 @@ async function selectWithBack(options = {}) {
 
 module.exports = {
   selectWithBack,
+  shouldAllowBack,
+  BACK_VALUE,
 };

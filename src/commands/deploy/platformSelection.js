@@ -1,8 +1,10 @@
-const { selectWithBack } = require('../../utils/selectWithBack');
+const { selectWithBack } = require('../../utils/navigation');
 const { t } = require('../../i18n');
 
 async function promptPlatformSelection() {
+  const allowBack = global.__APPSHIP_FROM_MAIN === true ? true : false;
   const choice = await selectWithBack({
+    allowBack,
     message: t('deploy.platform.menu.prompt'),
     choices: [
       { value: 'android', name: t('deploy.platform.menu.android') },
