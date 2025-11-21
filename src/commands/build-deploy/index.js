@@ -83,7 +83,7 @@ function registerBuildDeployCommand(program) {
         return;
       }
       config = ensuredConfig;
-
+      
       console.log(chalk.blue(t('buildDeploy.info.start')));
       console.log(chalk.blue(t('buildDeploy.info.buildPhase')));
 
