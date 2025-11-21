@@ -2,7 +2,7 @@ const chalk = require('chalk');
 const { confirm } = require('@inquirer/prompts');
 const { t } = require('../../i18n');
 const path = require('path');
-const { ensureConfigFile } = require('../../utils/config');
+const { ensureConfigFile, readConfig } = require('../../utils/config');
 const { runCommand } = require('../../utils/process');
 const { promptPlatformSelection, getPlatformLabelKey } = require('./platformSelection');
 const { promptAndroidFormatSelection, getFormatLabelKey } = require('./androidFormats');
@@ -10,6 +10,7 @@ const { getPubspecVersionInfo, promptVersionDecision } = require('./versionPromp
 const { handleVersionBump } = require('./versionBump');
 const { runAndroidBuild } = require('./androidBuild');
 const { runIosBuild } = require('./iosBuild');
+const { ensureSetupPrerequisites } = require('../../utils/setupRecovery');
 
 function registerBuildCommand(program) {
   const build = program.command('build').description(t('build.description'));
@@ -22,7 +23,8 @@ function registerBuildCommand(program) {
       return;
     }
 
-    const config = ensureConfigFile();
+    ensureConfigFile();
+    let config = readConfig();
     const platform = await promptPlatformSelection();
     console.log(chalk.cyan(t('build.platform.selection', { value: t(getPlatformLabelKey(platform)) })));
 
@@ -78,7 +80,7 @@ function registerBuildCommand(program) {
     };
     const artifactBaseName = buildArtifactBaseName({ config, summary });
 
-    if (!runPreBuildSteps()) {
+    if (!runPreBuildSteps({ config, platform })) {
       process.exitCode = 1;
       return;
     }
@@ -143,7 +145,13 @@ function logBuildSummary(summary, artifacts) {
   });
 }
 
-function runPreBuildSteps() {
+function runPreBuildSteps({ config, platform }) {
+  // Ensure latest config from setup checks
+  if (!config || !config.BUILD_OUTPUT_DIR) {
+    console.log(chalk.red(t('setupFix.failed')));
+    return false;
+  }
+
   console.log(chalk.blue(t('build.common.info.flutterClean')));
   const clean = runCommand('flutter', ['clean'], { inherit: true });
   if (!clean.success) {

@@ -3,6 +3,7 @@ const path = require('path');
 const chalk = require('chalk');
 const { runCommand } = require('../../utils/process');
 const { t } = require('../../i18n');
+const { ensureSetupPrerequisites } = require('../../utils/setupRecovery');
 
 function validateIosConfig(config = {}) {
   const missingSettings = [];
@@ -40,20 +41,20 @@ function validateIosConfig(config = {}) {
 }
 
 async function runIosBuild({ config = {}, summary = {}, artifactBaseName }) {
+  const ensured = await ensureSetupPrerequisites({ platform: 'ios' });
+  if (!ensured) {
+    throw new Error(t('setupFix.cancelled'));
+  }
+  config = ensured;
+
   const validation = validateIosConfig(config);
 
   if (validation.missingSettings.length > 0 || validation.fileIssues.length > 0) {
-    const labels = [...validation.missingSettings, ...validation.fileIssues].join(', ');
-    throw new Error(
-      t('build.ios.error.missingSettings', {
-        fields: labels,
-        command: 'appship setup ios-settings',
-      })
-    );
+    throw new Error(t('setupFix.failed'));
   }
 
   if (validation.outputDirMissing) {
-    throw new Error(t('build.common.error.outputDirMissing', { command: 'appship setup build-output-dir' }));
+    throw new Error(t('setupFix.failed'));
   }
 
   if (!fs.existsSync(validation.outputDir)) {
