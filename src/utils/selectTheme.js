@@ -8,8 +8,6 @@ const baseTheme = {
   style: {
     keysHelpTip: (keys) => {
       if (!keys || !keys.length) return undefined;
-      
-      keys.push(['q', t('common.quit')]);
 
       var index = keys.findIndex(([k, action]) => k === '↑↓');
       if (index !== -1) {
@@ -20,6 +18,8 @@ const baseTheme = {
       if (index !== -1) {
         keys[index] = ['↵', t('common.select')];
       }
+
+      // keys.push(['q', t('common.quit')]);
 
       const label = keys
         .map(([k, action]) => `${chalk.yellow(k)} ${chalk.dim(action)}`)
