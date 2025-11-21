@@ -70,6 +70,7 @@ async function runIosDeploy({ artifact, target, config, releaseNotes }) {
   console.log(chalk.blue(t('deploy.run.ios.start')));
 
   if (isAppStore(target.key)) {
+    const releaseNotes = buildChangelog(config, releaseNotesOverride);
     const args = [
       'deliver',
       '--ipa',
@@ -78,6 +79,12 @@ async function runIosDeploy({ artifact, target, config, releaseNotes }) {
       apiKeyPath,
       '--app_identifier',
       appId,
+      '--release_notes',
+      releaseNotes || t('deploy.run.ios.errors.unsupportedExtension', { ext: '' }), // fall back to non-empty
+      '--submit_for_review',
+      'false',
+      '--automatic_release',
+      'false',
       '--skip_metadata',
       'true',
       '--skip_screenshots',
@@ -109,8 +116,14 @@ async function runIosDeploy({ artifact, target, config, releaseNotes }) {
     '--app_identifier',
     appId,
     '--distribute_external',
+    'false',
+    '--notify_external_testers',
+    'false',
+    '--wait_processing_timeout_duration',
+    '3600',
+    '--wait_for_uploaded_build',
     'true',
-    '--skip_waiting_for_build_processing',
+    '--skip_submission',
     'true',
   ];
   if (changelog) {
