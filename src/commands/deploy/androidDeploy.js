@@ -64,6 +64,16 @@ async function runAndroidDeploy({ artifact, target, config, releaseNotes }) {
     config.GOOGLE_PLAY_SERVICE_ACCOUNT_KEY_PATH,
     '--package_name',
     config.GOOGLE_PLAY_PACKAGE_NAME,
+    '--skip_upload_metadata',
+    'true',
+    '--skip_upload_images',
+    'true',
+    '--skip_upload_screenshots',
+    'true',
+    '--changes_not_sent_for_review',
+    'true',
+    '--verbose',
+    'true',
   ];
 
   const metadataPath = createAndroidReleaseNotesMetadata(releaseNotes);
