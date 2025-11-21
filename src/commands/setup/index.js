@@ -1,6 +1,7 @@
 const chalk = require('chalk');
 const { select } = require('@inquirer/prompts');
 const { t } = require('../../i18n');
+const { handlePromptExit } = require('../../utils/exitPrompt');
 const { ensureConfigFile, readConfig } = require('../../utils/config');
 const registerProjectInfoCommand = require('./projectInfo');
 const registerAndroidSettingsCommand = require('./androidSettings');
@@ -12,48 +13,55 @@ function setupCommand(program) {
   const setup = program.command('setup').description(t('setup.info.description'));
 
   setup.action(async () => {
-    if (!process.stdin.isTTY) {
-      setup.outputHelp();
-      return;
-    }
+    try {
+      if (!process.stdin.isTTY) {
+        setup.outputHelp();
+        return;
+      }
 
-    const choice = await select({
-      message: t('setup.menu.prompt'),
-      choices: [
-        { name: t('setup.menu.full'), value: 'full' },
-        { name: t('setup.menu.projectInfo'), value: 'project' },
-        { name: t('setup.menu.androidSettings'), value: 'android' },
-        { name: t('setup.menu.iosSettings'), value: 'ios' },
-        { name: t('setup.menu.releaseNotes'), value: 'release' },
-        { name: t('setup.menu.buildOutputDir'), value: 'buildOutput' },
-        { name: t('setup.menu.summary'), value: 'summary' },
-      ],
-    });
+      const choice = await select({
+        message: t('setup.menu.prompt'),
+        choices: [
+          { name: t('setup.menu.full'), value: 'full' },
+          { name: t('setup.menu.projectInfo'), value: 'project' },
+          { name: t('setup.menu.androidSettings'), value: 'android' },
+          { name: t('setup.menu.iosSettings'), value: 'ios' },
+          { name: t('setup.menu.releaseNotes'), value: 'release' },
+          { name: t('setup.menu.buildOutputDir'), value: 'buildOutput' },
+          { name: t('setup.menu.summary'), value: 'summary' },
+        ],
+      });
 
-    switch (choice) {
-      case 'full':
-        await runFullSetup();
-        break;
-      case 'project':
-        await runFlow(registerProjectInfoCommand.run);
-        break;
-      case 'android':
-        await runFlow(registerAndroidSettingsCommand.run);
-        break;
-      case 'ios':
-        await runFlow(registerIosSettingsCommand.run);
-        break;
-      case 'release':
-        await runFlow(registerReleaseNotesCommand.run);
-        break;
-      case 'buildOutput':
-        await runFlow(registerBuildOutputDirCommand.run);
-        break;
-      case 'summary':
-        await showCurrentSummary();
-        break;
-      default:
-        break;
+      switch (choice) {
+        case 'full':
+          await runFullSetup();
+          break;
+        case 'project':
+          await runFlow(registerProjectInfoCommand.run);
+          break;
+        case 'android':
+          await runFlow(registerAndroidSettingsCommand.run);
+          break;
+        case 'ios':
+          await runFlow(registerIosSettingsCommand.run);
+          break;
+        case 'release':
+          await runFlow(registerReleaseNotesCommand.run);
+          break;
+        case 'buildOutput':
+          await runFlow(registerBuildOutputDirCommand.run);
+          break;
+        case 'summary':
+          await showCurrentSummary();
+          break;
+        default:
+          break;
+      }
+    } catch (error) {
+      const handled = await handlePromptExit(error);
+      if (!handled) {
+        throw error;
+      }
     }
   });
 

@@ -2,6 +2,7 @@
   "common": {
     "unknownError": "bilinmeyen hata",
     "unknownValue": "bilinmiyor",
+    "exitPrompt": "AppShip uygulamasından çıkmak istediğinize emin misiniz?",
     "errors": {
       "excessArguments": "'{command}' komutu için çok fazla argüman verildi. Beklenen: {expected}, alınan: {received}."
     }
@@ -386,6 +387,7 @@
         "prompt": "{platform} için deploy edilecek çıktıyı seçin"
       },
       "selected": "{platform} için seçilen çıktı: {file}",
+      "selectedDetailed": "{platform} için seçilen çıktı: {file} ({size}) - Build: {build} | Tarih: {date} | Saat: {time}",
       "label": "{file} ({size}) - Build: {build} | Tarih: {date} | Saat: {time}"
     },
     "error": {
@@ -424,8 +426,8 @@
     },
     "run": {
       "android": {
-        "start": "Android deploy başlatılıyor.. (Hedef: {track})",
-        "success": "Android deploy tamamlandı. (Hedef: {track})",
+        "start": "Android deploy başlatılıyor..",
+        "success": "Android deploy tamamlandı.",
         "errors": {
           "artifactMissing": "Android çıktısı bulunamadı veya geçersiz.",
           "missingServiceAccountKey": "Google Play servis hesabı anahtar yolu eksik veya geçersiz.",
@@ -456,6 +458,20 @@
           "uploadFailedTestflight": "iOS deploy TestFlight için başarısız oldu. Lütfen fastlane çıktısını kontrol edin."
         }
       }
+    },
+    "retry": {
+      "versionUsed": {
+        "prompt": "Android deploy başarısız: {code} build numarası daha önce kullanılmış! Versiyon/build artırıp yeniden build almak ister misiniz?",
+        "bumped": "Versiyon {version} (build {build}) olarak güncellendi.",
+        "redeployPrompt": "Yeni build ile yeniden deploy etmek ister misiniz?",
+        "cancelled": "Deploy kullanıcı tarafından iptal edildi.",
+        "buildFailed": "Yeniden build başarısız: {message}"
+      }
+    },
+    "summary": {
+      "title": "Deploy Özeti",
+      "platform": "Platform",
+      "target": "Hedef"
     }
   }
 }

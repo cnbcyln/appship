@@ -2,6 +2,7 @@ const chalk = require('chalk');
 const { runFlutterDoctor } = require('./flutter');
 const { runFastlaneDoctor } = require('./fastlane');
 const { t } = require('../../i18n');
+const { handlePromptExit } = require('../../utils/exitPrompt');
 
 function doctorCommand(program) {
   const doctor = program
@@ -12,40 +13,47 @@ function doctorCommand(program) {
     .option('--fastlane', t('doctor.info.options.fastlane'));
 
   doctor.action(async (subcommand, options) => {
-    if (subcommand) {
-      if (subcommand === 'help') {
-        console.log(t('doctor.info.helpDescription'));
-        doctor.outputHelp();
+    try {
+      if (subcommand) {
+        if (subcommand === 'help') {
+          console.log(t('doctor.info.helpDescription'));
+          doctor.outputHelp();
+          return;
+        }
+        console.log(chalk.red(t('doctor.error.unknownArgument', { value: subcommand })));
+        process.exitCode = 1;
         return;
       }
-      console.log(chalk.red(t('doctor.error.unknownArgument', { value: subcommand })));
-      process.exitCode = 1;
-      return;
-    }
 
-    try {
-      console.log(chalk.cyan.bold(`${t('doctor.info.intro')}\n`));
+      try {
+        console.log(chalk.cyan.bold(`${t('doctor.info.intro')}\n`));
 
-      const targets = resolveTargets(options);
-      let overallSuccess = true;
+        const targets = resolveTargets(options);
+        let overallSuccess = true;
 
-      for (const target of targets) {
-        if (target === 'flutter') {
-          overallSuccess = (await runFlutterDoctor()) && overallSuccess;
-        } else if (target === 'fastlane') {
-          overallSuccess = (await runFastlaneDoctor()) && overallSuccess;
+        for (const target of targets) {
+          if (target === 'flutter') {
+            overallSuccess = (await runFlutterDoctor()) && overallSuccess;
+          } else if (target === 'fastlane') {
+            overallSuccess = (await runFastlaneDoctor()) && overallSuccess;
+          }
         }
-      }
 
-      const finalMessage = overallSuccess ? t('doctor.success.complete') : t('doctor.warning.partial');
-      const finalColor = overallSuccess ? chalk.green : chalk.yellow;
-      console.log(finalColor.bold(`\n${finalMessage}`));
-      if (!overallSuccess) {
+        const finalMessage = overallSuccess ? t('doctor.success.complete') : t('doctor.warning.partial');
+        const finalColor = overallSuccess ? chalk.green : chalk.yellow;
+        console.log(finalColor.bold(`\n${finalMessage}`));
+        if (!overallSuccess) {
+          process.exitCode = 1;
+        }
+      } catch (error) {
+        console.log(chalk.red(`\n${t('doctor.error.unexpected', { message: error.message })}`));
         process.exitCode = 1;
       }
     } catch (error) {
-      console.log(chalk.red(`\n${t('doctor.error.unexpected', { message: error.message })}`));
-      process.exitCode = 1;
+      const handled = await handlePromptExit(error);
+      if (!handled) {
+        throw error;
+      }
     }
   });
 

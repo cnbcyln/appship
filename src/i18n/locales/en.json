@@ -2,6 +2,7 @@
   "common": {
     "unknownError": "unknown error",
     "unknownValue": "unknown",
+    "exitPrompt": "Are you sure you want to exit AppShip?",
     "errors": {
       "excessArguments": "Too many arguments for '{command}'. Expected {expected} but received {received}."
     }
@@ -386,6 +387,7 @@
         "prompt": "Select the artifact to deploy for {platform}"
       },
       "selected": "Selected artifact for {platform}: {file}",
+      "selectedDetailed": "Selected artifact for {platform}: {file} ({size}) - Build: {build} | Date: {date} | Time: {time}",
       "label": "{file} ({size}) - Build: {build} | Date: {date} | Time: {time}"
     },
     "error": {
@@ -424,8 +426,8 @@
     },
     "run": {
       "android": {
-        "start": "Starting Android deploy.. (Target: {track})...",
-        "success": "Android deploy completed. (Target: {track})",
+        "start": "Starting Android deploy...",
+        "success": "Android deploy completed.",
         "errors": {
           "artifactMissing": "Android artifact path is missing or not found.",
           "missingServiceAccountKey": "Google Play service account key path is missing or invalid.",
@@ -456,6 +458,20 @@
           "uploadFailedTestflight": "iOS deploy to TestFlight failed. Please check fastlane output."
         }
       }
+    },
+    "retry": {
+      "versionUsed": {
+        "prompt": "Android deploy failed: build number {code} is already used. Bump version/build and rebuild?",
+        "bumped": "Version updated to {version} (build {build}).",
+        "redeployPrompt": "Do you want to redeploy with the new build?",
+        "cancelled": "Deploy cancelled by user.",
+        "buildFailed": "Rebuild failed: {message}"
+      }
+    },
+    "summary": {
+      "title": "Deploy Summary",
+      "platform": "Platform",
+      "target": "Target"
     }
   }
 }

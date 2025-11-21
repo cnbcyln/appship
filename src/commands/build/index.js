@@ -11,121 +11,129 @@ const { handleVersionBump } = require('./versionBump');
 const { runAndroidBuild } = require('./androidBuild');
 const { runIosBuild } = require('./iosBuild');
 const { ensureSetupPrerequisites } = require('../../utils/setupRecovery');
+const { handlePromptExit } = require('../../utils/exitPrompt');
 
 function registerBuildCommand(program) {
   const build = program.command('build').description(t('build.description'));
 
   build.action(async () => {
-    if (!process.stdin.isTTY) {
-      console.log(chalk.red(t('build.error.nonInteractive')));
-      build.outputHelp();
-      process.exitCode = 1;
-      return;
-    }
+    try {
+      if (!process.stdin.isTTY) {
+        console.log(chalk.red(t('build.error.nonInteractive')));
+        build.outputHelp();
+        process.exitCode = 1;
+        return;
+      }
 
-    ensureConfigFile();
-    let config = readConfig();
-    const platform = await promptPlatformSelection();
-    console.log(chalk.cyan(t('build.platform.selection', { value: t(getPlatformLabelKey(platform)) })));
+      ensureConfigFile();
+      let config = readConfig();
+      const platform = await promptPlatformSelection();
+      console.log(chalk.cyan(t('build.platform.selection', { value: t(getPlatformLabelKey(platform)) })));
 
-    let androidFormat = null;
-    if (platform === 'android' || platform === 'both') {
-      androidFormat = await promptAndroidFormatSelection();
-      console.log(chalk.cyan(t('build.format.selection', { value: t(getFormatLabelKey(androidFormat)) })));
-    }
+      let androidFormat = null;
+      if (platform === 'android' || platform === 'both') {
+        androidFormat = await promptAndroidFormatSelection();
+        console.log(chalk.cyan(t('build.format.selection', { value: t(getFormatLabelKey(androidFormat)) })));
+      }
 
-    const versionInfo = getPubspecVersionInfo();
-    if (versionInfo.warningKey) {
-      console.log(chalk.yellow(t(versionInfo.warningKey)));
-    }
+      const versionInfo = getPubspecVersionInfo();
+      if (versionInfo.warningKey) {
+        console.log(chalk.yellow(t(versionInfo.warningKey)));
+      }
 
-    const versionDecision = await promptVersionDecision(versionInfo);
-    let finalVersion = versionDecision.versionDisplay;
-    let finalBuild = versionDecision.buildDisplay;
+      const versionDecision = await promptVersionDecision(versionInfo);
+      let finalVersion = versionDecision.versionDisplay;
+      let finalBuild = versionDecision.buildDisplay;
 
-    if (versionDecision.decision === 'bump') {
-      try {
-        const bumpResult = await handleVersionBump(versionInfo);
-        finalVersion = bumpResult.version;
-        finalBuild = bumpResult.build;
+      if (versionDecision.decision === 'bump') {
+        try {
+          const bumpResult = await handleVersionBump(versionInfo);
+          finalVersion = bumpResult.version;
+          finalBuild = bumpResult.build;
+          console.log(
+            chalk.green(
+              t('build.version.bump.applied', {
+                version: bumpResult.version,
+                build: bumpResult.build,
+              })
+            )
+          );
+        } catch (error) {
+          console.log(chalk.red(t('build.version.error.updateFailed', { message: error.message })));
+          process.exitCode = 1;
+          return;
+        }
+      } else {
         console.log(
-          chalk.green(
-            t('build.version.bump.applied', {
-              version: bumpResult.version,
-              build: bumpResult.build,
+          chalk.cyan(
+            t('build.version.selection.keep', {
+              version: versionDecision.versionDisplay,
+              build: versionDecision.buildDisplay,
             })
           )
         );
-      } catch (error) {
-        console.log(chalk.red(t('build.version.error.updateFailed', { message: error.message })));
+      }
+
+      const ensuredConfig = await ensureSetupPrerequisites({ platform });
+      if (!ensuredConfig) {
+        console.log(chalk.yellow(t('setupFix.cancelled')));
         process.exitCode = 1;
         return;
       }
-    } else {
-      console.log(
-        chalk.cyan(
-          t('build.version.selection.keep', {
-            version: versionDecision.versionDisplay,
-            build: versionDecision.buildDisplay,
-          })
-        )
-      );
-    }
+      config = ensuredConfig;
 
-    const ensuredConfig = await ensureSetupPrerequisites({ platform });
-    if (!ensuredConfig) {
-      console.log(chalk.yellow(t('setupFix.cancelled')));
-      process.exitCode = 1;
-      return;
-    }
-    config = ensuredConfig;
+      const summary = {
+        project: config.PROJECT_NAME || 'app',
+        platform,
+        version: finalVersion || versionInfo.version || t('common.unknownValue'),
+        build: finalBuild || versionInfo.build || '0',
+      };
+      const artifactBaseName = buildArtifactBaseName({ config, summary });
 
-    const summary = {
-      project: config.PROJECT_NAME || 'app',
-      platform,
-      version: finalVersion || versionInfo.version || t('common.unknownValue'),
-      build: finalBuild || versionInfo.build || '0',
-    };
-    const artifactBaseName = buildArtifactBaseName({ config, summary });
-
-    if (!runPreBuildSteps({ config, platform })) {
-      process.exitCode = 1;
-      return;
-    }
-
-    const shouldRunAndroid = platform === 'android' || platform === 'both';
-    const shouldRunIos = platform === 'ios' || platform === 'both';
-    const artifacts = [];
-
-    if (shouldRunAndroid) {
-      try {
-        const result = await runAndroidBuild({
-          format: androidFormat || 'apk',
-          config,
-          summary,
-          artifactBaseName,
-        });
-        artifacts.push({ platform: 'android', ...result });
-      } catch (error) {
-        console.log(chalk.red(error.message));
+      if (!runPreBuildSteps({ config, platform })) {
         process.exitCode = 1;
         return;
       }
-    }
 
-    if (shouldRunIos) {
-      try {
-        const result = await runIosBuild({ config, summary, artifactBaseName });
-        artifacts.push({ platform: 'ios', ...result });
-      } catch (error) {
-        console.log(chalk.red(error.message));
-        process.exitCode = 1;
-        return;
+      const shouldRunAndroid = platform === 'android' || platform === 'both';
+      const shouldRunIos = platform === 'ios' || platform === 'both';
+      const artifacts = [];
+
+      if (shouldRunAndroid) {
+        try {
+          const result = await runAndroidBuild({
+            format: androidFormat || 'apk',
+            config,
+            summary,
+            artifactBaseName,
+          });
+          artifacts.push({ platform: 'android', ...result });
+        } catch (error) {
+          console.log(chalk.red(error.message));
+          process.exitCode = 1;
+          return;
+        }
+      }
+
+      if (shouldRunIos) {
+        try {
+          const result = await runIosBuild({ config, summary, artifactBaseName });
+          artifacts.push({ platform: 'ios', ...result });
+        } catch (error) {
+          console.log(chalk.red(error.message));
+          process.exitCode = 1;
+          return;
+        }
+      }
+
+      logBuildSummary(summary, artifacts);
+      await promptOpenOutputFolder(config, platform);
+    } catch (error) {
+      const handled = await handlePromptExit(error);
+      if (!handled) {
+        throw error;
       }
     }
-
-    logBuildSummary(summary, artifacts);
-    await promptOpenOutputFolder(config, platform);
   });
 
   return program;

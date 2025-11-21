@@ -83,7 +83,12 @@ async function runAndroidDeploy({ artifact, target, config }) {
 
   if (!result.success) {
     const mapped = mapAndroidFailure(result);
-    throw new Error(mapped);
+    const err = new Error(mapped.message);
+    if (mapped.codeAlreadyUsed) {
+      err.codeAlreadyUsed = true;
+      err.versionCode = mapped.versionCode;
+    }
+    throw err;
   }
 
   console.log(chalk.green(t('deploy.run.android.success', { track })));
@@ -99,11 +104,11 @@ function mapAndroidFailure(result) {
   if (output.includes('version code') && output.includes('already been used')) {
     const match = output.match(/version code\s+(\d+)/i);
     const code = match && match[1] ? match[1] : t('common.unknownValue');
-    return t('deploy.run.android.errors.versionCodeUsed', { code });
+    return { message: t('deploy.run.android.errors.versionCodeUsed', { code }), codeAlreadyUsed: true, versionCode: code };
   }
 
   const fallback = result.stderr || result.stdout || t('common.unknownError');
-  return t('deploy.run.android.errors.uploadFailedGeneric', { message: fallback });
+  return { message: t('deploy.run.android.errors.uploadFailedGeneric', { message: fallback }), codeAlreadyUsed: false };
 }
 
 module.exports = {

@@ -2,6 +2,7 @@ const chalk = require('chalk');
 const { select } = require('@inquirer/prompts');
 const { readConfig, updateConfig, ensureConfigFile } = require('../../utils/config');
 const { t, setLocale } = require('../../i18n');
+const { handlePromptExit } = require('../../utils/exitPrompt');
 
 const AVAILABLE_LANGUAGES = [
   { value: 'en', labelKey: 'lang.info.languages.en' },
@@ -13,35 +14,42 @@ function registerLangCommand(program) {
     .command('lang')
     .description(t('lang.info.description'))
     .action(async () => {
-      ensureConfigFile();
+      try {
+        ensureConfigFile();
 
-      if (!process.stdin.isTTY) {
-        console.log(chalk.red(t('lang.error.nonInteractive')));
-        process.exitCode = 1;
-        return;
+        if (!process.stdin.isTTY) {
+          console.log(chalk.red(t('lang.error.nonInteractive')));
+          process.exitCode = 1;
+          return;
+        }
+
+        const current = readConfig().LANGUAGE || 'en';
+        const choices = AVAILABLE_LANGUAGES.map((item) => ({
+          name: t(item.labelKey),
+          value: item.value,
+        }));
+
+        const language = await select({
+          message: t('lang.info.prompt'),
+          choices,
+          loop: false,
+          default: current,
+        });
+
+        if (language === current) {
+          console.log(chalk.yellow(t('lang.warning.noChange', { language: t(getLabelKey(language)) })));
+          return;
+        }
+
+        updateConfig({ LANGUAGE: language });
+        setLocale(language);
+        console.log(chalk.green(t('lang.success.updated', { language: t(getLabelKey(language)) })));
+      } catch (error) {
+        const handled = await handlePromptExit(error);
+        if (!handled) {
+          throw error;
+        }
       }
-
-      const current = readConfig().LANGUAGE || 'en';
-      const choices = AVAILABLE_LANGUAGES.map((item) => ({
-        name: t(item.labelKey),
-        value: item.value,
-      }));
-
-      const language = await select({
-        message: t('lang.info.prompt'),
-        choices,
-        loop: false,
-        default: current,
-      });
-
-      if (language === current) {
-        console.log(chalk.yellow(t('lang.warning.noChange', { language: t(getLabelKey(language)) })));
-        return;
-      }
-
-      updateConfig({ LANGUAGE: language });
-      setLocale(language);
-      console.log(chalk.green(t('lang.success.updated', { language: t(getLabelKey(language)) })));
     });
 }
 

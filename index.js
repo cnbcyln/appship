@@ -9,6 +9,7 @@ const lang = require('./src/commands/lang/index.js');
 const build = require('./src/commands/build/index.js');
 const deploy = require('./src/commands/deploy/index.js');
 const { initI18n, t } = require('./src/i18n');
+const { registerExitPrompt } = require('./src/utils/exitPrompt');
 
 const program = new Command();
 let lastErrorOutput = '';
@@ -25,6 +26,7 @@ program.configureOutput({
 });
 
 initI18n();
+registerExitPrompt();
 
 program.exitOverride((err) => {
   if (err.code === 'commander.helpDisplayed') {
