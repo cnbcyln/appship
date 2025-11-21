@@ -1,5 +1,5 @@
 const chalk = require('chalk');
-const { select } = require('@inquirer/prompts');
+const { selectWithBack } = require('../../utils/selectWithBack');
 const { t } = require('../../i18n');
 const { handlePromptExit } = require('../../utils/exitPrompt');
 const { ensureConfigFile, readConfig } = require('../../utils/config');
@@ -20,7 +20,7 @@ function setupCommand(program) {
           return;
         }
 
-        const choice = await select({
+        const choice = await selectWithBack({
           message: t('setup.menu.prompt'),
           choices: [
             { name: t('setup.menu.full'), value: 'full' },
@@ -32,6 +32,10 @@ function setupCommand(program) {
             { name: t('setup.menu.summary'), value: 'summary' },
           ],
         });
+
+        if (choice === null) {
+          break;
+        }
 
         switch (choice) {
           case 'full':

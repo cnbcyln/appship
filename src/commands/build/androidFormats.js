@@ -1,8 +1,8 @@
-const { select } = require('@inquirer/prompts');
+const { selectWithBack } = require('../../utils/selectWithBack');
 const { t } = require('../../i18n');
 
 async function promptAndroidFormatSelection() {
-  const format = await select({
+  const format = await selectWithBack({
     message: t('build.format.menu.prompt'),
     choices: [
       { value: 'apk', name: t('build.format.menu.apk') },
@@ -10,7 +10,7 @@ async function promptAndroidFormatSelection() {
     ],
   });
 
-  return format;
+  return format === null ? null : format;
 }
 
 function getFormatLabelKey(format) {

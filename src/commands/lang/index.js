@@ -1,5 +1,5 @@
 const chalk = require('chalk');
-const { select } = require('@inquirer/prompts');
+const { selectWithBack } = require('../../utils/selectWithBack');
 const { readConfig, updateConfig, ensureConfigFile } = require('../../utils/config');
 const { t, setLocale } = require('../../i18n');
 const { handlePromptExit } = require('../../utils/exitPrompt');
@@ -30,12 +30,15 @@ function registerLangCommand(program) {
           value: item.value,
         }));
 
-        const language = await select({
+        const language = await selectWithBack({
           message: t('lang.info.prompt'),
           choices,
           loop: false,
           default: current,
         });
+        if (!language) {
+          continue;
+        }
 
         if (language === current) {
           console.log(chalk.yellow(t('lang.warning.noChange', { language: t(getLabelKey(language)) })));

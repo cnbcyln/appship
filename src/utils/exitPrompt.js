@@ -39,7 +39,7 @@ async function handlePromptExit(error) {
   try {
     const shouldExit = await confirm({
       message: t('common.exitPrompt'),
-      default: false,
+      default: true,
     });
     if (shouldExit) {
       process.exit(1);

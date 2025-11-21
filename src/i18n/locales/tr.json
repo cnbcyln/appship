@@ -3,6 +3,7 @@
     "unknownError": "bilinmeyen hata",
     "unknownValue": "bilinmiyor",
     "exitPrompt": "AppShip uygulamasından çıkmak istediğinize emin misiniz?",
+    "back": "⬅️  Geri",
     "errors": {
       "excessArguments": "'{command}' komutu için çok fazla argüman verildi. Beklenen: {expected}, alınan: {received}."
     }
@@ -512,6 +513,7 @@
     "build": "🔨 Build Al",
     "deploy": "📤 Deploy Et",
     "buildDeploy": "🚀 Build + Deploy (Build al ve deploy et)",
+    "buildClean": "🧹 Build Çıktılarını Temizle",
     "exit": "🚪 Çıkış",
     "exitMessage": "AppShip’den çıkılıyor."
   },

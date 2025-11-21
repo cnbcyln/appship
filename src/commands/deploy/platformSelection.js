@@ -1,8 +1,8 @@
-const { select } = require('@inquirer/prompts');
+const { selectWithBack } = require('../../utils/selectWithBack');
 const { t } = require('../../i18n');
 
 async function promptPlatformSelection() {
-  const choice = await select({
+  const choice = await selectWithBack({
     message: t('deploy.platform.menu.prompt'),
     choices: [
       { value: 'android', name: t('deploy.platform.menu.android') },
@@ -11,7 +11,7 @@ async function promptPlatformSelection() {
     ],
   });
 
-  return choice;
+  return choice === null ? null : choice;
 }
 
 function getPlatformLabelKey(platform) {

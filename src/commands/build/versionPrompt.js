@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { select } = require('@inquirer/prompts');
+const { selectWithBack } = require('../../utils/selectWithBack');
 const { t } = require('../../i18n');
 
 function getPubspecVersionInfo() {
@@ -43,7 +43,7 @@ async function promptVersionDecision(info = {}) {
   const versionDisplay = info.version || t('common.unknownValue');
   const buildDisplay = info.build || t('common.unknownValue');
 
-  const decision = await select({
+  const decision = await selectWithBack({
     message: t('build.version.menu.prompt', { version: versionDisplay }),
     choices: [
       { value: 'bump', name: t('build.version.menu.bump') },
@@ -53,6 +53,10 @@ async function promptVersionDecision(info = {}) {
       },
     ],
   });
+
+  if (!decision) {
+    return null;
+  }
 
   return {
     decision,

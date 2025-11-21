@@ -3,6 +3,7 @@
     "unknownError": "unknown error",
     "unknownValue": "unknown",
     "exitPrompt": "Are you sure you want to exit AppShip?",
+    "back": "⬅️  Back",
     "errors": {
       "excessArguments": "Too many arguments for '{command}'. Expected {expected} but received {received}."
     }
@@ -512,6 +513,7 @@
     "build": "🔨 Build",
     "deploy": "📤 Deploy",
     "buildDeploy": "🚀 Build + Deploy",
+    "buildClean": "🧹 Clean Build Outputs",
     "exit": "🚪 Exit",
     "exitMessage": "Exiting AppShip."
   },

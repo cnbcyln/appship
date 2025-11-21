@@ -34,50 +34,97 @@ function registerBuildDeployCommand(program) {
       ensureConfigFile();
       let config = readConfig();
 
-      const platform = await promptBuildPlatformSelection();
-      console.log(chalk.cyan(t('build.platform.selection', { value: t(getBuildPlatformLabelKey(platform)) })));
-
+      let platform = null;
       let androidFormat = null;
+      let finalVersion = null;
+      let finalBuild = null;
+      let versionInfo = null;
+      let releaseNotes = null;
+      let selectionExitToMain = false;
+
+      let step = 'platform';
+      while (true) {
+        if (step === 'platform') {
+          platform = await promptBuildPlatformSelection();
+          if (!platform) {
+            selectionExitToMain = true;
+            break;
+          }
+          console.log(chalk.cyan(t('build.platform.selection', { value: t(getBuildPlatformLabelKey(platform)) })));
+          androidFormat = null;
+          step = platform === 'android' || platform === 'both' ? 'format' : 'version';
+          continue;
+        }
+
+        if (step === 'format') {
+          androidFormat = await promptAndroidFormatSelection();
+          if (!androidFormat) {
+            step = 'platform';
+            continue;
+          }
+          console.log(chalk.cyan(t('build.format.selection', { value: t(getFormatLabelKey(androidFormat)) })));
+          step = 'version';
+          continue;
+        }
+
+        if (step === 'version') {
+          versionInfo = getPubspecVersionInfo();
+          if (versionInfo.warningKey) {
+            console.log(chalk.yellow(t(versionInfo.warningKey)));
+          }
+
+          const versionDecision = await promptVersionDecision(versionInfo);
+          if (!versionDecision) {
+            step = platform === 'android' || platform === 'both' ? 'format' : 'platform';
+            continue;
+          }
+          finalVersion = versionDecision.versionDisplay;
+          finalBuild = versionDecision.buildDisplay;
+
+          if (versionDecision.decision === 'bump') {
+            try {
+              const bumpResult = await handleVersionBump(versionInfo);
+              if (!bumpResult) {
+                step = 'version';
+                continue;
+              }
+              finalVersion = bumpResult.version;
+              finalBuild = bumpResult.build;
+              console.log(chalk.green(t('build.version.bump.applied', { version: bumpResult.version, build: bumpResult.build })));
+            } catch (error) {
+              console.log(chalk.red(t('build.version.error.updateFailed', { message: error.message })));
+              process.exitCode = 1;
+              return;
+            }
+          } else {
+            console.log(
+              chalk.cyan(
+                t('build.version.selection.keep', {
+                  version: versionDecision.versionDisplay,
+                  build: versionDecision.buildDisplay,
+                })
+              )
+            );
+          }
+
+          step = 'notes';
+          continue;
+        }
+
+        if (step === 'notes') {
+          const shouldRunAndroid = platform === 'android' || platform === 'both';
+          const shouldRunIos = platform === 'ios' || platform === 'both';
+          releaseNotes = await promptReleaseNotes(config, { shouldRunIos, shouldRunAndroid });
+          break;
+        }
+      }
+
+      if (selectionExitToMain) {
+        break;
+      }
+
       const shouldRunAndroid = platform === 'android' || platform === 'both';
       const shouldRunIos = platform === 'ios' || platform === 'both';
-
-      if (shouldRunAndroid) {
-        androidFormat = await promptAndroidFormatSelection();
-        console.log(chalk.cyan(t('build.format.selection', { value: t(getFormatLabelKey(androidFormat)) })));
-      }
-
-      const versionInfo = getPubspecVersionInfo();
-      if (versionInfo.warningKey) {
-        console.log(chalk.yellow(t(versionInfo.warningKey)));
-      }
-
-      const versionDecision = await promptVersionDecision(versionInfo);
-      let finalVersion = versionDecision.versionDisplay;
-      let finalBuild = versionDecision.buildDisplay;
-
-      if (versionDecision.decision === 'bump') {
-        try {
-          const bumpResult = await handleVersionBump(versionInfo);
-          finalVersion = bumpResult.version;
-          finalBuild = bumpResult.build;
-          console.log(chalk.green(t('build.version.bump.applied', { version: bumpResult.version, build: bumpResult.build })));
-        } catch (error) {
-          console.log(chalk.red(t('build.version.error.updateFailed', { message: error.message })));
-          process.exitCode = 1;
-          return;
-        }
-      } else {
-        console.log(
-          chalk.cyan(
-            t('build.version.selection.keep', {
-              version: versionDecision.versionDisplay,
-              build: versionDecision.buildDisplay,
-            })
-          )
-        );
-      }
-
-      const releaseNotes = await promptReleaseNotes(config, { shouldRunIos, shouldRunAndroid });
 
       const ensuredConfig = await ensureSetupPrerequisites({ platform });
       if (!ensuredConfig) {
@@ -136,14 +183,15 @@ function registerBuildDeployCommand(program) {
 
       console.log(chalk.blue(t('buildDeploy.info.deployPhase')));
       const targetSelections = await collectDeployTargets(artifacts);
+      if (!targetSelections) {
+        continue;
+      }
       const deployResults = [];
 
       for (const artifact of artifacts) {
         const target = targetSelections[artifact.platform];
         if (!target) {
-          console.log(chalk.red(t('deploy.error.nonInteractive')));
-          process.exitCode = 1;
-          return;
+          continue;
         }
 
         try {
@@ -450,6 +498,9 @@ async function collectDeployTargets(artifacts = []) {
       continue;
     }
     const target = await promptTargetSelection({ platform });
+    if (!target) {
+      return null;
+    }
     console.log(
       chalk.green(
         t('deploy.target.selected', {

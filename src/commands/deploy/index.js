@@ -29,6 +29,7 @@ function registerDeployCommand(program) {
       }
 
     const platform = await promptPlatformSelection();
+    if (!platform) break;
     console.log(chalk.cyan(t('deploy.platform.selection', { value: t(getPlatformLabelKey(platform)) })));
 
     ensureConfigFile();
@@ -38,15 +39,21 @@ function registerDeployCommand(program) {
     let baseOutputDir = (config.BUILD_OUTPUT_DIR || '').trim();
     if (platform === 'both') {
       const androidResult = await handlePlatformSelection({ platform: 'android', baseOutputDir });
-      if (!androidResult) return;
+      if (!androidResult) {
+        continue;
+      }
       selections.android = androidResult;
 
       const iosResult = await handlePlatformSelection({ platform: 'ios', baseOutputDir });
-      if (!iosResult) return;
+      if (!iosResult) {
+        continue;
+      }
       selections.ios = iosResult;
     } else {
       const result = await handlePlatformSelection({ platform, baseOutputDir });
-      if (!result) return;
+      if (!result) {
+        continue;
+      }
       selections[platform] = result;
     }
 
@@ -102,33 +109,44 @@ function registerDeployCommand(program) {
 module.exports = registerDeployCommand;
 
 async function handlePlatformSelection({ platform, baseOutputDir }) {
-  const artifact = await promptArtifactSelection({ platform, baseOutputDir });
-  if (!artifact) {
-    process.exitCode = 1;
-    return null;
+  let artifact = null;
+  let target = null;
+  let step = 'artifact';
+
+  while (true) {
+    if (step === 'artifact') {
+      artifact = await promptArtifactSelection({ platform, baseOutputDir });
+      if (!artifact) {
+        return null;
+      }
+      const meta = extractArtifactMeta(artifact);
+      console.log(
+        chalk.green(
+          t('deploy.output.selectedDetailed', {
+            platform: t(getPlatformLabelKey(platform)),
+            file: artifact.name,
+            size: formatBytes(meta.sizeBytes),
+            build: meta.build || t('common.unknownValue'),
+            date: meta.date || t('common.unknownValue'),
+            time: meta.time || t('common.unknownValue'),
+          })
+        )
+      );
+      step = 'target';
+      continue;
+    }
+
+    if (step === 'target') {
+      target = await promptTargetSelection({ platform });
+      if (!target) {
+        step = 'artifact';
+        continue;
+      }
+      console.log(chalk.green(t('deploy.target.selected', { platform: t(getPlatformLabelKey(platform)), target: target.label })));
+      break;
+    }
   }
 
-  const meta = extractArtifactMeta(artifact);
-  console.log(
-    chalk.green(
-      t('deploy.output.selectedDetailed', {
-        platform: t(getPlatformLabelKey(platform)),
-        file: artifact.name,
-        size: formatBytes(meta.sizeBytes),
-        build: meta.build || t('common.unknownValue'),
-        date: meta.date || t('common.unknownValue'),
-        time: meta.time || t('common.unknownValue'),
-      })
-    )
-  );
-
-  const target = await promptTargetSelection({ platform });
-  if (!target) {
-    process.exitCode = 1;
-    return null;
-  }
-
-  console.log(chalk.green(t('deploy.target.selected', { platform: t(getPlatformLabelKey(platform)), target: target.label })));
   const releaseNotes = await promptReleaseNotes();
   return { artifact, target, releaseNotes };
 }

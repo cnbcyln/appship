@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { select } = require('@inquirer/prompts');
+const { selectWithBack } = require('../../utils/selectWithBack');
 const chalk = require('chalk');
 const { t } = require('../../i18n');
 const { getPlatformLabelKey } = require('./platformSelection');
@@ -12,7 +12,7 @@ async function promptArtifactSelection({ platform, baseOutputDir }) {
     return null;
   }
 
-  const choice = await select({
+  const choice = await selectWithBack({
     message: t('deploy.output.menu.prompt', { platform: t(getPlatformLabelKey(platform)) }),
     choices: artifacts.map((artifact) => ({
       value: artifact,
@@ -20,7 +20,7 @@ async function promptArtifactSelection({ platform, baseOutputDir }) {
     })),
   });
 
-  return choice;
+  return choice === null ? null : choice;
 }
 
 function collectArtifacts(baseOutputDir, platform) {

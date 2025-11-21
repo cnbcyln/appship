@@ -1,5 +1,6 @@
 const chalk = require('chalk');
-const { select, confirm } = require('@inquirer/prompts');
+const { selectWithBack } = require('../../utils/selectWithBack');
+const { confirm } = require('@inquirer/prompts');
 const { t } = require('../../i18n');
 const { getPlatformLabelKey } = require('./platformSelection');
 
@@ -7,10 +8,13 @@ async function promptTargetSelection({ platform }) {
   const choices = platform === 'ios' ? iosTargets() : androidTargets();
 
   while (true) {
-    const selection = await select({
+    const selection = await selectWithBack({
       message: t('deploy.target.menu.prompt', { platform: t(getPlatformLabelKey(platform)) }),
       choices,
     });
+    if (selection === null) {
+      return null;
+    }
 
     const isProduction = selection.key === 'production' || selection.key === 'appstore';
     if (isProduction) {

@@ -1,7 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
-const { select, confirm } = require('@inquirer/prompts');
+const { confirm } = require('@inquirer/prompts');
+const { selectWithBack } = require('../../utils/selectWithBack');
 const { ensureConfigFile, readConfig } = require('../../utils/config');
 const { t } = require('../../i18n');
 const { handlePromptExit } = require('../../utils/exitPrompt');
@@ -33,23 +34,25 @@ function registerBuildCleanCommand(program) {
           return;
         }
         const config = ensured || readConfig();
-        const baseDir = (config.BUILD_OUTPUT_DIR || '').trim();
-        if (!baseDir) {
-          console.log(chalk.red(t('buildClean.error.outputDirMissing')));
-          process.exitCode = 1;
-          return;
-        }
+      const baseDir = (config.BUILD_OUTPUT_DIR || '').trim();
+      if (!baseDir) {
+        console.log(chalk.red(t('buildClean.error.outputDirMissing')));
+        process.exitCode = 1;
+        return;
+      }
 
-        const target = await resolveTarget(options);
-        if (!target) {
-          process.exitCode = 1;
-          return;
+      const target = await resolveTarget(options);
+      if (!target) {
+        if (global.__APPSHIP_ALLOW_BACK) {
+          break; // ana menüye dön
         }
+        continue;
+      }
 
-        const confirmed = await confirmCleanup(target);
-        if (!confirmed) {
-          console.log(chalk.yellow(t('buildClean.info.cancelled')));
-          break;
+      const confirmed = await confirmCleanup(target);
+      if (!confirmed) {
+        console.log(chalk.yellow(t('buildClean.info.cancelled')));
+        break;
         }
 
         const cleaned = performClean(baseDir, target);
@@ -88,7 +91,7 @@ async function resolveTarget(options = {}) {
   if (options.android) return 'android';
   if (options.ios) return 'ios';
 
-  const choice = await select({
+  const choice = await selectWithBack({
     message: t('buildClean.menu.prompt'),
     choices: [
       { value: 'android', name: t('buildClean.menu.android') },
@@ -96,7 +99,7 @@ async function resolveTarget(options = {}) {
       { value: 'all', name: t('buildClean.menu.both') },
     ],
   });
-  return choice;
+  return choice === null ? null : choice;
 }
 
 function performClean(baseDir, target) {

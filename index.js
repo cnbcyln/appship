@@ -91,6 +91,7 @@ async function main() {
   if (noCommandProvided && process.stdin.isTTY) {
     while (true) {
       try {
+        global.__APPSHIP_ALLOW_BACK = true;
         const choice = await select({
           message: t('mainMenu.prompt'),
           choices: [
@@ -98,6 +99,7 @@ async function main() {
             { value: 'build', name: t('mainMenu.build') },
             { value: 'deploy', name: t('mainMenu.deploy') },
             { value: 'build-deploy', name: t('mainMenu.buildDeploy') },
+            { value: 'build-clean', name: t('mainMenu.buildClean') },
             { value: 'exit', name: t('mainMenu.exit') },
           ],
         });
@@ -114,8 +116,9 @@ async function main() {
         }
 
         const argv = [process.argv[0], process.argv[1], choice];
-        program.parse(argv);
-        return;
+        await program.parseAsync(argv);
+        // komut bittiyse yeniden ana menüye dön
+        continue;
       } catch (error) {
         const handled = await handlePromptExit(error);
         if (handled === 'resume') {
@@ -135,5 +138,6 @@ async function main() {
     return;
   }
 
+  global.__APPSHIP_ALLOW_BACK = false;
   program.parse(process.argv);
 }

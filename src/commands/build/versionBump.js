@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
-const { select } = require('@inquirer/prompts');
+const { selectWithBack } = require('../../utils/selectWithBack');
 const { t } = require('../../i18n');
 const { promptRequiredInput } = require('../../utils/promptRequiredInput');
 
@@ -82,12 +82,12 @@ async function promptBumpType(base) {
 
   choices.push({ value: 'manual', name: t('build.version.bump.menu.manual') });
 
-  const selection = await select({
+  const selection = await selectWithBack({
     message: t('build.version.bump.menu.prompt'),
     choices,
   });
 
-  return selection;
+  return selection === null ? null : selection;
 }
 
 function isNewerVersion(baseParts, candidateParts) {
@@ -173,6 +173,9 @@ function updatePubspecVersion(pubspecPath, version, build) {
 async function handleVersionBump(versionInfo = {}) {
   const base = normalizeVersionInfo(versionInfo);
   const bumpType = await promptBumpType(base);
+  if (!bumpType) {
+    return null;
+  }
 
   let target;
   if (bumpType === 'manual') {
