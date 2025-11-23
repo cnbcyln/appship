@@ -203,7 +203,11 @@ function prepareApiKeyFile(config) {
 
   const safeKeyId = keyId.replace(/[^a-z0-9_\-]/gi, ''); // avoids odd filenames
   const targetPath = path.join(os.tmpdir(), `appship_asc_${safeKeyId || 'key'}.json`);
-  fs.writeFileSync(targetPath, JSON.stringify(jsonPayload, null, 2), 'utf8');
+  try {
+    fs.writeFileSync(targetPath, JSON.stringify(jsonPayload, null, 2), 'utf8');
+  } catch (error) {
+    throw new Error(t('deploy.run.ios.errors.invalidApiKeyFormat'));
+  }
   return targetPath;
 }
 
@@ -240,14 +244,26 @@ async function fetchAppStoreLocales({ config, apiKeyPath }) {
 
 function buildAppStoreJwtFromKey(config, apiKeyPath) {
   const resolved = apiKeyPath || prepareApiKeyFile(config);
-  const content = fs.readFileSync(resolved, 'utf8');
-  const parsed = JSON.parse(content);
+  let content;
+  try {
+    content = fs.readFileSync(resolved, 'utf8');
+  } catch (error) {
+    throw new Error(t('deploy.run.ios.errors.invalidApiKeyFormat'));
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(content);
+  } catch (error) {
+    throw new Error(t('common.errors.jsonParseFailed', { message: error.message }));
+  }
+
   const keyId = parsed.key_id || parsed.keyId || parsed.keyID;
   const issuerId = parsed.issuer_id || parsed.issuerId;
   const privateKey = parsed.key || parsed.private_key || parsed.privateKey;
 
   if (!keyId || !issuerId || !privateKey) {
-    throw new Error('Invalid API key file');
+    throw new Error(t('deploy.run.ios.errors.invalidApiKeyContent'));
   }
 
   const header = { alg: 'ES256', kid: keyId, typ: 'JWT' };
@@ -262,10 +278,23 @@ function buildAppStoreJwtFromKey(config, apiKeyPath) {
   const encodedPayload = base64UrlEncode(Buffer.from(JSON.stringify(payload)));
   const data = `${encodedHeader}.${encodedPayload}`;
 
+  // ES256 uses ECDSA with P-256 and SHA-256
   const signer = crypto.createSign('sha256');
   signer.update(data);
   signer.end();
-  const signature = signer.sign(privateKey);
+  let signature;
+  try {
+    // Try modern Node.js API (15+) with proper ECDSA encoding for ES256
+    // The dsaEncoding option ensures IEEE P1363 format which App Store Connect expects
+    signature = signer.sign({ key: privateKey, dsaEncoding: 'ieee-p1363' });
+  } catch (error) {
+    // Fallback for older Node.js versions (< 15) that don't support dsaEncoding
+    try {
+      signature = signer.sign(privateKey);
+    } catch (fallbackError) {
+      throw new Error(t('deploy.run.ios.errors.jwtSigningFailed'));
+    }
+  }
   const encodedSignature = base64UrlEncode(signature);
 
   return `${data}.${encodedSignature}`;
@@ -312,17 +341,29 @@ async function fetchJson(url, token) {
           body += chunk;
         });
         res.on('end', () => {
+          // Check HTTP status code
+          if (res.statusCode < 200 || res.statusCode >= 300) {
+            const errorMessage = body || `HTTP ${res.statusCode}`;
+            reject(new Error(t('common.errors.httpRequestFailed', { status: res.statusCode, message: errorMessage })));
+            return;
+          }
+
           try {
             const parsed = JSON.parse(body || '{}');
             resolve(parsed);
           } catch (err) {
-            reject(err);
+            reject(new Error(t('common.errors.jsonParseFailed', { message: err.message })));
           }
         });
       }
     );
 
     req.on('error', reject);
+    const timeoutMs = 30000;
+    req.setTimeout(timeoutMs, () => {
+      req.destroy();
+      reject(new Error(t('common.errors.httpRequestTimeout', { timeout: timeoutMs })));
+    });
     req.end();
   });
 }

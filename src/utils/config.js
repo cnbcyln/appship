@@ -1,6 +1,24 @@
 const fs = require('fs');
 const path = require('path');
 
+// Lazy load i18n to avoid circular dependency (i18n depends on config)
+function getT() {
+  try {
+    return require('../i18n').t;
+  } catch {
+    // Fallback if i18n is not available yet
+    return (key, replacements) => {
+      if (key === 'common.errors.configReadFailed') {
+        return `Failed to read configuration file (${replacements?.path || ''}): ${replacements?.message || ''}`;
+      }
+      if (key === 'common.errors.configWriteFailed') {
+        return `Failed to write configuration file (${replacements?.path || ''}): ${replacements?.message || ''}`;
+      }
+      return key;
+    };
+  }
+}
+
 const CONFIG_FILENAME = 'appship.config.json';
 
 const DEFAULT_CONFIG = {
@@ -33,13 +51,19 @@ function readConfig() {
     const parsed = JSON.parse(raw);
     return normalizeConfig(parsed);
   } catch (error) {
-    throw new Error(`Konfigürasyon dosyası okunamadı (${filePath}): ${error.message}`);
+    const t = getT();
+    throw new Error(t('common.errors.configReadFailed', { path: filePath, message: error.message }));
   }
 }
 
 function writeConfig(config) {
   const filePath = getConfigPath();
-  fs.writeFileSync(filePath, JSON.stringify(config, null, 2) + '\n', 'utf8');
+  try {
+    fs.writeFileSync(filePath, JSON.stringify(config, null, 2) + '\n', 'utf8');
+  } catch (error) {
+    const t = getT();
+    throw new Error(t('common.errors.configWriteFailed', { path: filePath, message: error.message }));
+  }
 }
 
 function ensureConfigFile() {
@@ -112,7 +136,7 @@ function sanitizeLocale(value) {
     return null;
   }
 
-  const normalized = value.replace('_', '-').trim();
+  const normalized = value.replace(/_/g, '-').trim();
   if (!normalized) {
     return null;
   }

@@ -34,6 +34,7 @@ function registerBuildCommand(program) {
       let androidFormat = null;
       let finalVersion = null;
       let finalBuild = null;
+      let versionInfo = null;
       let selectionExitToMain = false;
 
       let step = 'platform';
@@ -62,7 +63,7 @@ function registerBuildCommand(program) {
         }
 
         if (step === 'version') {
-          const versionInfo = getPubspecVersionInfo();
+          versionInfo = getPubspecVersionInfo();
           if (versionInfo.warningKey) {
             console.log(chalk.yellow(t(versionInfo.warningKey)));
           }
@@ -126,8 +127,8 @@ function registerBuildCommand(program) {
       const summary = {
         project: config.PROJECT_NAME || 'app',
         platform,
-        version: finalVersion || versionInfo.version || t('common.unknownValue'),
-        build: finalBuild || versionInfo.build || '0',
+        version: finalVersion || (versionInfo && versionInfo.version) || t('common.unknownValue'),
+        build: finalBuild || (versionInfo && versionInfo.build) || '0',
       };
       const artifactBaseName = buildArtifactBaseName({ config, summary });
 

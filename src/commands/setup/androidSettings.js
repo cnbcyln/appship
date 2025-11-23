@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
-const { search, confirm } = require('@inquirer/prompts');
+const { search, confirm, input } = require('@inquirer/prompts');
 const { updateConfig, readConfig, ensureConfigFile } = require('../../utils/config');
 const { t } = require('../../i18n');
 const { promptRequiredInput } = require('../../utils/promptRequiredInput');

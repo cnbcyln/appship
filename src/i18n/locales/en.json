@@ -8,7 +8,12 @@
     "back": "⬅️  Back",
     "quit": "Quit",
     "errors": {
-      "excessArguments": "Too many arguments for '{command}'. Expected {expected} but received {received}."
+      "excessArguments": "Too many arguments for '{command}'. Expected {expected} but received {received}.",
+      "configReadFailed": "Failed to read configuration file ({path}): {message}",
+      "configWriteFailed": "Failed to write configuration file ({path}): {message}",
+      "httpRequestFailed": "HTTP request failed with status {status}: {message}",
+      "jsonParseFailed": "Failed to parse JSON: {message}",
+      "httpRequestTimeout": "HTTP request timed out after {timeout}ms"
     }
   },
   "lang": {
@@ -484,7 +489,9 @@
           "missingBundleId": "Apple Bundle ID is missing.",
           "unsupportedExtension": "Unsupported iOS artifact extension: {ext}",
           "uploadFailedAppstore": "iOS deploy to App Store Review failed. Please check fastlane output.",
-          "uploadFailedTestflight": "iOS deploy to TestFlight failed. Please check fastlane output."
+          "uploadFailedTestflight": "iOS deploy to TestFlight failed. Please check fastlane output.",
+          "invalidApiKeyContent": "Invalid API key file: missing required fields (key_id, issuer_id, or key).",
+          "jwtSigningFailed": "Failed to sign JWT token for App Store Connect API. Please verify your API key."
         }
       }
     },

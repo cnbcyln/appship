@@ -8,7 +8,12 @@
     "back": "⬅️  Geri",
     "quit": "Çıkış",
     "errors": {
-      "excessArguments": "'{command}' komutu için çok fazla argüman verildi. Beklenen: {expected}, alınan: {received}."
+      "excessArguments": "'{command}' komutu için çok fazla argüman verildi. Beklenen: {expected}, alınan: {received}.",
+      "configReadFailed": "Konfigürasyon dosyası okunamadı ({path}): {message}",
+      "configWriteFailed": "Konfigürasyon dosyası yazılamadı ({path}): {message}",
+      "httpRequestFailed": "HTTP isteği başarısız oldu (durum {status}): {message}",
+      "jsonParseFailed": "JSON ayrıştırılamadı: {message}",
+      "httpRequestTimeout": "HTTP isteği {timeout}ms sonra zaman aşımına uğradı"
     }
   },
   "lang": {
@@ -484,7 +489,9 @@
           "missingBundleId": "Apple Bundle ID eksik.",
           "unsupportedExtension": "Desteklenmeyen iOS çıktı uzantısı: {ext}",
           "uploadFailedAppstore": "iOS deploy App Store Review için başarısız oldu. Lütfen fastlane çıktısını kontrol edin.",
-          "uploadFailedTestflight": "iOS deploy TestFlight için başarısız oldu. Lütfen fastlane çıktısını kontrol edin."
+          "uploadFailedTestflight": "iOS deploy TestFlight için başarısız oldu. Lütfen fastlane çıktısını kontrol edin.",
+          "invalidApiKeyContent": "Geçersiz API anahtarı dosyası: gerekli alanlar eksik (key_id, issuer_id veya key).",
+          "jwtSigningFailed": "App Store Connect API için JWT token imzalama başarısız oldu. Lütfen API anahtarınızı doğrulayın."
         }
       }
     },
