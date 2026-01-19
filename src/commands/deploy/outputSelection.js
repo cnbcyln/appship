@@ -116,4 +116,5 @@ function formatTime(value) {
 
 module.exports = {
   promptArtifactSelection,
+  collectArtifacts,
 };

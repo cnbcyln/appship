@@ -7,170 +7,237 @@ const { runCommand } = require('../../utils/process');
 const { promptPlatformSelection, getPlatformLabelKey } = require('./platformSelection');
 const { promptAndroidFormatSelection, getFormatLabelKey } = require('./androidFormats');
 const { getPubspecVersionInfo, promptVersionDecision } = require('./versionPrompt');
-const { handleVersionBump } = require('./versionBump');
+const { handleVersionBump, applyVersionBump } = require('./versionBump');
 const { runAndroidBuild } = require('./androidBuild');
 const { runIosBuild } = require('./iosBuild');
 const { ensureSetupPrerequisites } = require('../../utils/setupRecovery');
 const { handlePromptExit } = require('../../utils/exitPrompt');
 
 function registerBuildCommand(program) {
-  const build = program.command('build').description(t('build.description'));
+  const build = program.command('build')
+    .description(t('build.description'))
+    .option('-p, --platform <platform>', 'Platform to build (android, ios, both)')
+    .option('-f, --format <format>', 'Android format (apk, aab)')
+    .option('-b, --bump <strategy>', 'Version bump strategy (major, minor, patch, build, none)');
 
-  build.action(async () => {
+  build.action(async (options) => {
     while (true) {
       try {
-      if (!process.stdin.isTTY) {
-        console.log(chalk.red(t('build.error.nonInteractive')));
-        build.outputHelp();
-        process.exitCode = 1;
-        return;
-      }
+        const isInteractive = process.stdin.isTTY;
 
-      ensureConfigFile();
-      let config = readConfig();
+        // If not interactive and missing required options, fail
+        if (!isInteractive && !options.platform) {
+          console.log(chalk.red(t('build.error.nonInteractive')));
+          process.exitCode = 1;
+          return;
+        }
 
-      let platform = null;
-      const allowBackFirst = global.__APPSHIP_FROM_MAIN === true;
-      let androidFormat = null;
-      let finalVersion = null;
-      let finalBuild = null;
-      let versionInfo = null;
-      let selectionExitToMain = false;
+        ensureConfigFile();
+        let config = readConfig();
 
-      let step = 'platform';
-      while (true) {
-        if (step === 'platform') {
-          platform = await promptPlatformSelection({ allowBack: allowBackFirst });
+        let platform = options.platform;
+        const allowBackFirst = global.__APPSHIP_FROM_MAIN === true;
+        let androidFormat = options.format;
+        let finalVersion = null;
+        let finalBuild = null;
+        let versionInfo = null;
+        let selectionExitToMain = false;
+
+        let step = 'platform';
+
+        // Interactive loop or One-pass for CI
+        while (true) {
           if (!platform) {
-            selectionExitToMain = true;
-            break;
-          }
-          //console.log(chalk.cyan(t('build.platform.selection', { value: t(getPlatformLabelKey(platform)) })));
-          androidFormat = null;
-          step = platform === 'android' || platform === 'both' ? 'format' : 'version';
-          continue;
-        }
-
-        if (step === 'format') {
-          androidFormat = await promptAndroidFormatSelection({ allowBack: true });
-          if (!androidFormat) {
-            step = 'platform';
-            continue;
-          }
-          //console.log(chalk.cyan(t('build.format.selection', { value: t(getFormatLabelKey(androidFormat)) })));
-          step = 'version';
-          continue;
-        }
-
-        if (step === 'version') {
-          versionInfo = getPubspecVersionInfo();
-          if (versionInfo.warningKey) {
-            console.log(chalk.yellow(t(versionInfo.warningKey)));
-          }
-
-          const versionDecision = await promptVersionDecision(versionInfo, { allowBack: true });
-          if (!versionDecision) {
-            step = platform === 'android' || platform === 'both' ? 'format' : 'platform';
-            continue;
-          }
-          finalVersion = versionDecision.versionDisplay;
-          finalBuild = versionDecision.buildDisplay;
-
-          if (versionDecision.decision === 'bump') {
-            try {
-              const bumpResult = await handleVersionBump(versionInfo, { allowBack: true });
-              if (!bumpResult) {
-                step = 'version';
-                continue;
+            if (step === 'platform') {
+              platform = await promptPlatformSelection({ allowBack: allowBackFirst });
+              if (!platform) {
+                selectionExitToMain = true;
+                break;
               }
-              finalVersion = bumpResult.version;
-              finalBuild = bumpResult.build;
-              console.log(
-                chalk.green(
-                  t('build.version.bump.applied', {
-                    version: bumpResult.version,
-                    build: bumpResult.build,
-                  })
-                )
-              );
-            } catch (error) {
-              console.log(chalk.red(t('build.version.error.updateFailed', { message: error.message })));
-              process.exitCode = 1;
-              return;
+              //console.log(chalk.cyan(t('build.platform.selection', { value: t(getPlatformLabelKey(platform)) })));
+              androidFormat = null; // Reset format if platform changes
+              step = platform === 'android' || platform === 'both' ? 'format' : 'version';
+              continue;
             }
           } else {
-            /* console.log(
-              chalk.cyan(
-                t('build.version.selection.keep', {
-                  version: versionDecision.versionDisplay,
-                  build: versionDecision.buildDisplay,
-                })
-              )
-            ); */
+             // If platform was provided via flag, we just validate it briefly or move on
+             // We ensure 'step' logic is respected for subsequent parameters if they are missing
+             if (step === 'platform') {
+                 step = platform === 'android' || platform === 'both' ? 'format' : 'version';
+             }
           }
+
+          if (step === 'format') {
+             if (!androidFormat && (platform === 'android' || platform === 'both')) {
+                if (isInteractive) {
+                  androidFormat = await promptAndroidFormatSelection({ allowBack: true });
+                  if (!androidFormat) {
+                    step = 'platform';
+                    platform = null; // Go back
+                    continue;
+                  }
+                } else {
+                   // Default to apk if not specified in CI? Or fail?
+                   // Let's default to apk for convenience or fail if strict.
+                   // Usage says: appship build --platform android --format apk
+                   // Let's require it or default it.
+                   androidFormat = 'apk';
+                }
+             }
+             step = 'version';
+             continue;
+          }
+
+          if (step === 'version') {
+            versionInfo = getPubspecVersionInfo();
+            if (versionInfo.warningKey) {
+              console.log(chalk.yellow(t(versionInfo.warningKey)));
+            }
+
+            let versionDecision = null;
+
+            if (options.bump) {
+                versionDecision = { decision: options.bump === 'none' ? 'keep' : 'bump', strategy: options.bump };
+                // Map 'none' to 'keep'
+                if (options.bump === 'none') {
+                    versionDecision = { decision: 'keep' };
+                } else {
+                    versionDecision = { decision: 'bump', strategy: options.bump };
+                }
+                finalVersion = versionInfo.version; // Initial value
+                finalBuild = versionInfo.build;
+            } else if (isInteractive) {
+                versionDecision = await promptVersionDecision(versionInfo, { allowBack: true });
+                if (!versionDecision) {
+                  step = platform === 'android' || platform === 'both' ? 'format' : 'platform';
+                  if (options.platform) {
+                      // if platform was fixed, we can't go back to change it in interactive mode easily
+                      // if we are fully interactive, we can.
+                      // But if options.platform is set, we treat it as fixed.
+                      // Actually, if options.platform is set, we might not want to go back.
+                      // But the prompt loop design allows going back.
+                      // If we are in mixed mode (flags + interactive), it's tricky.
+                      // Let's assume if flags are present, we don't loop back to change them.
+                      return;
+                  }
+                  continue;
+                }
+            } else {
+                // Non-interactive and no bump flag -> default to keep?
+                versionDecision = { decision: 'keep' };
+            }
+
+            finalVersion = versionDecision.versionDisplay || versionInfo.version;
+            finalBuild = versionDecision.buildDisplay || versionInfo.build;
+
+            if (versionDecision.decision === 'bump') {
+              try {
+                let bumpResult;
+                if (isInteractive && !options.bump) {
+                    bumpResult = await handleVersionBump(versionInfo, { allowBack: true });
+                    if (!bumpResult) {
+                      step = 'version';
+                      continue;
+                    }
+                } else {
+                    // Apply bump strategy directly
+                    // We need to import applyVersionBump or similar logic.
+                    // handleVersionBump handles the prompt. We need the logic *after* the prompt.
+                    // Checking handleVersionBump implementation in versionBump.js...
+                    // It seems I need to look at versionBump.js to see if I can call a lower level function.
+                    // For now, I'll assume I need to implement a non-interactive bump handler or modify handleVersionBump.
+                    // Let's assume applyVersionBump exists or I need to create it.
+                    // The require above: const { handleVersionBump, applyVersionBump } = require('./versionBump');
+                    // I need to check versionBump.js to see what's available.
+
+                    // PROVISIONAL: I will check versionBump.js content before finalizing this file.
+                    // For now, let's assume I can use a function to apply it.
+                    bumpResult = await applyVersionBump(versionInfo, versionDecision.strategy);
+                }
+
+                finalVersion = bumpResult.version;
+                finalBuild = bumpResult.build;
+                console.log(
+                  chalk.green(
+                    t('build.version.bump.applied', {
+                      version: bumpResult.version,
+                      build: bumpResult.build,
+                    })
+                  )
+                );
+              } catch (error) {
+                console.log(chalk.red(t('build.version.error.updateFailed', { message: error.message })));
+                process.exitCode = 1;
+                return;
+              }
+            }
+            break; // Finished version step
+          }
+        }
+
+        if (selectionExitToMain) {
           break;
         }
-      }
 
-      if (selectionExitToMain) {
+        // ... rest of the build process (Prerequisites, PreBuild, Android, iOS) ...
+        const ensuredConfig = await ensureSetupPrerequisites({ platform });
+        if (!ensuredConfig) {
+          console.log(chalk.yellow(t('setupFix.cancelled')));
+          process.exitCode = 1;
+          return;
+        }
+        config = ensuredConfig;
+
+        const summary = {
+          project: config.PROJECT_NAME || 'app',
+          platform,
+          version: finalVersion || (versionInfo && versionInfo.version) || t('common.unknownValue'),
+          build: finalBuild || (versionInfo && versionInfo.build) || '0',
+        };
+        const artifactBaseName = buildArtifactBaseName({ config, summary });
+
+        if (!runPreBuildSteps({ config, platform })) {
+          process.exitCode = 1;
+          return;
+        }
+
+        const shouldRunAndroid = platform === 'android' || platform === 'both';
+        const shouldRunIos = platform === 'ios' || platform === 'both';
+        const artifacts = [];
+
+        if (shouldRunAndroid) {
+          try {
+            const result = await runAndroidBuild({
+              format: androidFormat || 'apk',
+              config,
+              summary,
+              artifactBaseName,
+            });
+            artifacts.push({ platform: 'android', ...result });
+          } catch (error) {
+            console.log(chalk.red(error.message));
+            process.exitCode = 1;
+            return;
+          }
+        }
+
+        if (shouldRunIos) {
+          try {
+            const result = await runIosBuild({ config, summary, artifactBaseName });
+            artifacts.push({ platform: 'ios', ...result });
+          } catch (error) {
+            console.log(chalk.red(error.message));
+            process.exitCode = 1;
+            return;
+          }
+        }
+
+        logBuildSummary(summary, artifacts);
+
+        if (isInteractive) {
+            await promptOpenOutputFolder(config, platform);
+        }
         break;
-      }
-
-      const ensuredConfig = await ensureSetupPrerequisites({ platform });
-      if (!ensuredConfig) {
-        console.log(chalk.yellow(t('setupFix.cancelled')));
-        process.exitCode = 1;
-        return;
-      }
-      config = ensuredConfig;
-
-      const summary = {
-        project: config.PROJECT_NAME || 'app',
-        platform,
-        version: finalVersion || (versionInfo && versionInfo.version) || t('common.unknownValue'),
-        build: finalBuild || (versionInfo && versionInfo.build) || '0',
-      };
-      const artifactBaseName = buildArtifactBaseName({ config, summary });
-
-      if (!runPreBuildSteps({ config, platform })) {
-        process.exitCode = 1;
-        return;
-      }
-
-      const shouldRunAndroid = platform === 'android' || platform === 'both';
-      const shouldRunIos = platform === 'ios' || platform === 'both';
-      const artifacts = [];
-
-      if (shouldRunAndroid) {
-        try {
-          const result = await runAndroidBuild({
-            format: androidFormat || 'apk',
-            config,
-            summary,
-            artifactBaseName,
-          });
-          artifacts.push({ platform: 'android', ...result });
-        } catch (error) {
-          console.log(chalk.red(error.message));
-          process.exitCode = 1;
-          return;
-        }
-      }
-
-      if (shouldRunIos) {
-        try {
-          const result = await runIosBuild({ config, summary, artifactBaseName });
-          artifacts.push({ platform: 'ios', ...result });
-        } catch (error) {
-          console.log(chalk.red(error.message));
-          process.exitCode = 1;
-          return;
-        }
-      }
-
-      logBuildSummary(summary, artifacts);
-      await promptOpenOutputFolder(config, platform);
-      break;
       } catch (error) {
         const handled = await handlePromptExit(error);
         if (handled === 'resume') {

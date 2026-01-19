@@ -52,8 +52,12 @@ function computeBumpTarget(base, type) {
       nextMinor += 1;
       nextPatch = 0;
       break;
+    case 'build':
+      // Only build number increments, version stays same
+      break;
     case 'patch':
     default:
+      // Default to patch bump (standard behavior)
       nextPatch += 1;
       break;
   }
@@ -195,7 +199,26 @@ async function handleVersionBump(versionInfo = {}, { allowBack = true } = {}) {
   };
 }
 
+async function applyVersionBump(versionInfo = {}, strategy) {
+  const base = normalizeVersionInfo(versionInfo);
+  // strategy: major, minor, patch, build
+
+  // Note: 'manual' strategy is not supported via this simple interface,
+  // users should use interactive mode or we need to add --new-version flag
+
+  const target = computeBumpTarget(base, strategy);
+  updatePubspecVersion(base.pubspecPath, target.version, target.build);
+
+  return {
+    updated: true,
+    version: target.version,
+    build: target.build,
+    method: strategy,
+  };
+}
+
 module.exports = {
   handleVersionBump,
+  applyVersionBump,
   normalizeVersionInfo,
 };

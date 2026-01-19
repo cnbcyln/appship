@@ -369,6 +369,26 @@
       "nonInteractive": "Build command requires an interactive terminal."
     }
   },
+  "initCi": {
+    "description": "Generate CI/CD configuration files",
+    "providerPrompt": "Select CI/CD Provider",
+    "platformPrompt": "Select Platform to Configure",
+    "success": "Successfully generated {filename}",
+    "exists": "File {filename} already exists. Skipping generation.",
+    "note": "Note: Please review the generated file and configure secrets/key paths as needed.",
+    "error": {
+      "nonInteractive": "init-ci command requires interactive mode."
+    },
+    "providers": {
+      "github": "GitHub Actions",
+      "gitlab": "GitLab CI"
+    },
+    "platforms": {
+      "android": "Android",
+      "ios": "iOS",
+      "both": "Both"
+    }
+  },
   "buildClean": {
     "description": "Removes build artifacts",
     "options": {
@@ -524,6 +544,7 @@
     "deploy": "📤 Deploy",
     "buildDeploy": "🚀 Build + Deploy",
     "buildClean": "🧹 Clean Build Outputs",
+    "initCi": "🤖 CI/CD Config Generator",
     "lang": "🌐 Language",
     "exit": "🚪 Exit",
     "exitMessage": "Exiting AppShip."
