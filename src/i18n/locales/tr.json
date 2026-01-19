@@ -369,6 +369,26 @@
       "nonInteractive": "Build komutu etkileşimli terminal gerektirir."
     }
   },
+  "initCi": {
+    "description": "CI/CD yapılandırma dosyaları oluşturur",
+    "providerPrompt": "CI/CD Sağlayıcısını Seçin",
+    "platformPrompt": "Yapılandırılacak Platformu Seçin",
+    "success": "{filename} başarıyla oluşturuldu",
+    "exists": "{filename} dosyası zaten mevcut. Oluşturma atlandı.",
+    "note": "Not: Lütfen oluşturulan dosyayı inceleyin ve secret/anahtar yollarını yapılandırın.",
+    "error": {
+      "nonInteractive": "init-ci komutu etkileşimli mod gerektirir."
+    },
+    "providers": {
+      "github": "GitHub Actions",
+      "gitlab": "GitLab CI"
+    },
+    "platforms": {
+      "android": "Android",
+      "ios": "iOS",
+      "both": "Her İkisi"
+    }
+  },
   "buildClean": {
     "description": "Build çıktılarının temizlenmesini sağlar",
     "options": {
@@ -524,6 +544,7 @@
     "deploy": "📤 Deploy Et",
     "buildDeploy": "🚀 Build + Deploy (Build al ve deploy et)",
     "buildClean": "🧹 Build Çıktılarını Temizle",
+    "initCi": "🤖 CI/CD Yapılandırma Oluşturucu",
     "lang": "🌐 Dil Seçimi",
     "exit": "🚪 Çıkış",
     "exitMessage": "AppShip’den çıkılıyor."

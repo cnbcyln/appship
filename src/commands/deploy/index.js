@@ -3,7 +3,7 @@ const { confirm, input } = require('@inquirer/prompts');
 const { t } = require('../../i18n');
 const { ensureConfigFile, readConfig } = require('../../utils/config');
 const { promptPlatformSelection, getPlatformLabelKey } = require('./platformSelection');
-const { promptArtifactSelection } = require('./outputSelection');
+const { promptArtifactSelection, collectArtifacts } = require('./outputSelection');
 const { promptTargetSelection } = require('./targetSelection');
 const { runAndroidDeploy } = require('./androidDeploy');
 const { runIosDeploy } = require('./iosDeploy');
@@ -12,84 +12,118 @@ const { handlePromptExit } = require('../../utils/exitPrompt');
 const path = require('path');
 const fs = require('fs');
 const { getPubspecVersionInfo } = require('../build/versionPrompt');
-const { handleVersionBump } = require('../build/versionBump');
+const { handleVersionBump, applyVersionBump } = require('../build/versionBump');
 const { runAndroidBuild } = require('../build/androidBuild');
 
 function registerDeployCommand(program) {
-  const deploy = program.command('deploy').description(t('deploy.description'));
+  const deploy = program.command('deploy')
+    .description(t('deploy.description'))
+    .option('-p, --platform <platform>', 'Platform to deploy (android, ios)')
+    .option('-t, --target <target>', 'Deployment target (android: internal, alpha, beta, production; ios: testflight, appstore)')
+    .option('-a, --artifact <path>', 'Path to artifact or "latest"')
+    .option('--release-notes-tr <notes>', 'Release notes in Turkish')
+    .option('--release-notes-en <notes>', 'Release notes in English');
 
-  deploy.action(async () => {
+  deploy.action(async (options) => {
     while (true) {
       try {
-      if (!process.stdin.isTTY) {
-        console.log(chalk.red(t('deploy.error.nonInteractive')));
-        deploy.outputHelp();
-        process.exitCode = 1;
-        return;
-      }
+        const isInteractive = process.stdin.isTTY;
 
-    const platform = await promptPlatformSelection();
-    if (!platform) break;
-    //console.log(chalk.cyan(t('deploy.platform.selection', { value: t(getPlatformLabelKey(platform)) })));
+        if (!isInteractive && !options.platform) {
+            console.log(chalk.red(t('deploy.error.nonInteractive')));
+            process.exitCode = 1;
+            return;
+        }
 
-    ensureConfigFile();
-    let config = readConfig();
+        let platform = options.platform;
 
-    const selections = {};
-    let baseOutputDir = (config.BUILD_OUTPUT_DIR || '').trim();
-    if (platform === 'both') {
-      const androidResult = await handlePlatformSelection({ platform: 'android', baseOutputDir });
-      if (!androidResult) {
-        continue;
-      }
-      selections.android = androidResult;
+        if (!platform && isInteractive) {
+            platform = await promptPlatformSelection();
+            if (!platform) break;
+            //console.log(chalk.cyan(t('deploy.platform.selection', { value: t(getPlatformLabelKey(platform)) })));
+        }
 
-      const iosResult = await handlePlatformSelection({ platform: 'ios', baseOutputDir });
-      if (!iosResult) {
-        continue;
-      }
-      selections.ios = iosResult;
-    } else {
-      const result = await handlePlatformSelection({ platform, baseOutputDir });
-      if (!result) {
-        continue;
-      }
-      selections[platform] = result;
-    }
+        ensureConfigFile();
+        let config = readConfig();
 
-    const deployResults = [];
+        const selections = {};
+        let baseOutputDir = (config.BUILD_OUTPUT_DIR || '').trim();
 
-    if (platform === 'both') {
-      const okAndroid = await deployPlatform({ platform: 'android', selections, config });
-      if (!okAndroid) {
-        process.exitCode = 1;
-        return;
-      }
-      deployResults.push(okAndroid);
-      const okIos = await deployPlatform({ platform: 'ios', selections, config });
-      if (!okIos) {
-        process.exitCode = 1;
-        return;
-      }
-      deployResults.push(okIos);
-    } else if (platform === 'android') {
-      const ok = await deployPlatform({ platform: 'android', selections, config });
-      if (!ok) {
-        process.exitCode = 1;
-        return;
-      }
-      deployResults.push(ok);
-    } else if (platform === 'ios') {
-      const ok = await deployPlatform({ platform: 'ios', selections, config });
-      if (!ok) {
-        process.exitCode = 1;
-        return;
-      }
-      deployResults.push(ok);
-    }
+        // Non-interactive logic
+        if (!isInteractive || (options.platform && options.target)) {
+             if (platform === 'both') {
+                 console.log(chalk.red("Deploying to 'both' is not supported in non-interactive mode. Please run separate commands for android and ios."));
+                 process.exitCode = 1;
+                 return;
+             }
 
-    logDeploySummary(deployResults);
-      break;
+             const selection = await handlePlatformSelectionNonInteractive({
+                 platform,
+                 baseOutputDir,
+                 options
+             });
+
+             if (!selection) {
+                 process.exitCode = 1;
+                 return;
+             }
+             selections[platform] = selection;
+        } else {
+            // Interactive logic
+            if (platform === 'both') {
+              const androidResult = await handlePlatformSelection({ platform: 'android', baseOutputDir });
+              if (!androidResult) {
+                continue;
+              }
+              selections.android = androidResult;
+
+              const iosResult = await handlePlatformSelection({ platform: 'ios', baseOutputDir });
+              if (!iosResult) {
+                continue;
+              }
+              selections.ios = iosResult;
+            } else {
+              const result = await handlePlatformSelection({ platform, baseOutputDir });
+              if (!result) {
+                continue;
+              }
+              selections[platform] = result;
+            }
+        }
+
+        const deployResults = [];
+
+        if (platform === 'both') {
+          const okAndroid = await deployPlatform({ platform: 'android', selections, config, isInteractive });
+          if (!okAndroid) {
+            process.exitCode = 1;
+            return;
+          }
+          deployResults.push(okAndroid);
+          const okIos = await deployPlatform({ platform: 'ios', selections, config, isInteractive });
+          if (!okIos) {
+            process.exitCode = 1;
+            return;
+          }
+          deployResults.push(okIos);
+        } else if (platform === 'android') {
+          const ok = await deployPlatform({ platform: 'android', selections, config, isInteractive });
+          if (!ok) {
+            process.exitCode = 1;
+            return;
+          }
+          deployResults.push(ok);
+        } else if (platform === 'ios') {
+          const ok = await deployPlatform({ platform: 'ios', selections, config, isInteractive });
+          if (!ok) {
+            process.exitCode = 1;
+            return;
+          }
+          deployResults.push(ok);
+        }
+
+        logDeploySummary(deployResults);
+        break;
       } catch (error) {
         const handled = await handlePromptExit(error);
         if (handled === 'resume') {
@@ -107,6 +141,55 @@ function registerDeployCommand(program) {
 }
 
 module.exports = registerDeployCommand;
+
+async function handlePlatformSelectionNonInteractive({ platform, baseOutputDir, options }) {
+    // Resolve Artifact
+    let artifact = null;
+    const artifactOption = options.artifact || 'latest';
+
+    if (artifactOption === 'latest') {
+        const artifacts = collectArtifacts(baseOutputDir, platform);
+        if (!artifacts.length) {
+            console.log(chalk.red(t('deploy.error.noArtifacts', { platform: t(getPlatformLabelKey(platform)) })));
+            return null;
+        }
+        artifact = artifacts[0]; // collectArtifacts sorts by time desc
+    } else {
+        // Path provided
+        const p = path.resolve(artifactOption);
+        if (!fs.existsSync(p)) {
+             console.log(chalk.red(t('deploy.run.android.errors.artifactMissing'))); // Reusing error message
+             return null;
+        }
+        artifact = {
+            name: path.basename(p),
+            path: p,
+            size: fs.statSync(p).size
+        };
+    }
+
+    // Resolve Target
+    let targetKey = options.target;
+    if (!targetKey) {
+        // Default targets?
+        if (platform === 'android') targetKey = 'internal'; // Safe default?
+        else if (platform === 'ios') targetKey = 'testflight';
+        else {
+             console.log(chalk.red("Target is required."));
+             return null;
+        }
+    }
+
+    const target = { key: targetKey, label: targetKey }; // Label is approximate
+
+    // Resolve Release Notes
+    const releaseNotes = {
+        tr: options.releaseNotesTr || '',
+        en: options.releaseNotesEn || ''
+    };
+
+    return { artifact, target, releaseNotes };
+}
 
 async function handlePlatformSelection({ platform, baseOutputDir }) {
   let artifact = null;
@@ -151,7 +234,7 @@ async function handlePlatformSelection({ platform, baseOutputDir }) {
   return { artifact, target, releaseNotes };
 }
 
-async function deployPlatform({ platform, selections, config }) {
+async function deployPlatform({ platform, selections, config, isInteractive }) {
   const selection = selections[platform];
   if (!selection) {
     return false;
@@ -188,20 +271,25 @@ async function deployPlatform({ platform, selections, config }) {
     }
   } catch (error) {
     if (platform === 'android' && error.codeAlreadyUsed) {
-      const handled = await handleAndroidVersionRetry({
-        error,
-        selection,
-        config,
-        releaseNotes: selection.releaseNotes,
-      });
-      if (handled && handled.path) {
-        return {
-          platform: 'android',
-          target: selection.target.label || selection.target.key,
-          track: selection.target.key,
-          path: handled.path,
-          sizeBytes: getItemSize(handled.path),
-        };
+      // Retry logic only in interactive mode
+      if (isInteractive) {
+          const handled = await handleAndroidVersionRetry({
+            error,
+            selection,
+            config,
+            releaseNotes: selection.releaseNotes,
+          });
+          if (handled && handled.path) {
+            return {
+              platform: 'android',
+              target: selection.target.label || selection.target.key,
+              track: selection.target.key,
+              path: handled.path,
+              sizeBytes: getItemSize(handled.path),
+            };
+          }
+      } else {
+          console.log(chalk.red(`Deploy failed: Version Code ${error.versionCode} already used. Please bump version and try again.`));
       }
       return false;
     }
@@ -276,6 +364,7 @@ async function handleAndroidVersionRetry({ error, selection, config, releaseNote
   }
 
   try {
+    // Interactive bump
     const bumpResult = await handleVersionBump(versionInfo);
     console.log(chalk.green(t('deploy.retry.versionUsed.bumped', { version: bumpResult.version, build: bumpResult.build })));
 

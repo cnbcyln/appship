@@ -11,6 +11,7 @@ const build = require('./src/commands/build/index.js');
 const deploy = require('./src/commands/deploy/index.js');
 const buildDeploy = require('./src/commands/build-deploy/index.js');
 const buildClean = require('./src/commands/build-clean/index.js');
+const initCi = require('./src/commands/init-ci/index.js');
 const { initI18n, t } = require('./src/i18n');
 const { registerExitPrompt, handlePromptExit } = require('./src/utils/exitPrompt');
 const baseTheme = require('./src/utils/selectTheme');
@@ -80,6 +81,7 @@ build(program);
 deploy(program);
 buildDeploy(program);
 buildClean(program);
+initCi(program);
 
 main().catch((err) => {
   console.error(err);
@@ -101,6 +103,7 @@ async function main() {
             { value: 'deploy', name: t('mainMenu.deploy') },
             { value: 'build-deploy', name: t('mainMenu.buildDeploy') },
             { value: 'build-clean', name: t('mainMenu.buildClean') },
+            { value: 'init-ci', name: t('mainMenu.initCi') },
             { value: 'lang', name: t('mainMenu.lang') },
             { value: 'exit', name: t('mainMenu.exit') },
           ],
